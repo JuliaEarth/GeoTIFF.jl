@@ -1,5 +1,19 @@
+# -----------------------------------------------------------------
+# Licensed under the MIT License. See LICENSE in the project root.
+# -----------------------------------------------------------------
+
 module GeoTIFF
 
-# Write your package code here.
+using TiffImages: AbstractTIFF, DenseTaggedImage, WidePixel
+using ColorTypes: Colorant, Gray
+using MappedArrays: mappedarray
+using FixedPointNumbers: Fixed, Normed
+
+import TiffImages
+
+include("metadata.jl")
+include("image.jl")
+include("load.jl")
+include("save.jl")
 
 end
