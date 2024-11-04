@@ -1,0 +1,7 @@
+name = "GeoTIFF"
+uuid = "c470187e-1474-4b46-a068-a417f109db17"
+authors = ["Elias Carvalho <eliascarvdev@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.10"
