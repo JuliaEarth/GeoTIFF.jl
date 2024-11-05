@@ -10,7 +10,7 @@ MappedArrays = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
 TiffImages = "731e570b-9d59-4bfa-96dc-6df516fadf69"
 
 [compat]
-ColorTypes = "0.11"
+ColorTypes = "0.11, 0.12"
 FixedPointNumbers = "0.8"
 MappedArrays = "0.4"
 TiffImages = "0.11"
