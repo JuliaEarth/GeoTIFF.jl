@@ -163,9 +163,6 @@ function ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0
     throw(ArgumentError("`A` must be a square matrix"))
   end
   dim = first(sz)
-  if dim ∉ (2, 3)
-    throw(ArgumentError("only 2D and 3D transformations are supported"))
-  end
   if dim ≠ length(b)
     throw(ArgumentError("`A` and `b` must have the same dimension"))
   end
@@ -204,11 +201,25 @@ struct Metadata
   modeltransformation::Union{ModelTransformation,Nothing}
 end
 
-Metadata(;
+function Metadata(;
   geokeydirectory=GeoKeyDirectory(),
   geodoubleparams=nothing,
   geoasciiparams=nothing,
   modelpixelscale=nothing,
   modeltiepoint=nothing,
   modeltransformation=ModelTransformation()
-) = Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
+)
+  haspixelscale = !isnothing(modelpixelscale)
+  hastiepoint = !isnothing(modeltiepoint)
+  hastransformation = !isnothing(modeltransformation)
+  if (haspixelscale || hastiepoint) && !(haspixelscale && hastiepoint)
+    throw(ArgumentError("ModelPixelScale and ModelTiepoint must be defined together"))
+  end
+  if !hastiepoint && !hastransformation
+    throw(ArgumentError("GeoTIFF requires a ModelPixelScale with ModelTiepoint or a ModelTransformation"))
+  end
+  if hastiepoint && hastransformation
+    throw(ArgumentError("only one of ModelPixelScale with ModelTiepoint or ModelTransformation can be defined"))
+  end
+  Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
+end
