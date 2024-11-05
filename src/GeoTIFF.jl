@@ -11,6 +11,7 @@ using FixedPointNumbers: Fixed, Normed
 
 import TiffImages
 
+include("geokeys.jl")
 include("metadata.jl")
 include("image.jl")
 include("load.jl")

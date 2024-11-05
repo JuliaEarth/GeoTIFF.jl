@@ -11,66 +11,6 @@
   ModelTransformationTag = 34264
 end
 
-@enum GeoKeyID::UInt16 begin
-  GTRasterTypeGeoKey = 1025
-  GTModelTypeGeoKey = 1024
-  ProjectedCRSGeoKey = 3072
-  GeodeticCRSGeoKey = 2048
-  VerticalGeoKey = 4096
-  GTCitationGeoKey = 1026
-  GeodeticCitationGeoKey = 2049
-  ProjectedCitationGeoKey = 3073
-  VerticalCitationGeoKey = 4097
-  GeogAngularUnitsGeoKey = 2054
-  GeogAzimuthUnitsGeoKey = 2060
-  GeogLinearUnitsGeoKey = 2052
-  ProjLinearUnitsGeoKey = 3076
-  VerticalUnitsGeoKey = 4099
-  GeogAngularUnitSizeGeoKey = 2055
-  GeogLinearUnitSizeGeoKey = 2053
-  ProjLinearUnitSizeGeoKey = 3077
-  GeodeticDatumGeoKey = 2050
-  PrimeMeridianGeoKey = 2051
-  PrimeMeridianLongitudeGeoKey = 2061
-  EllipsoidGeoKey = 2056
-  EllipsoidSemiMajorAxisGeoKey = 2057
-  EllipsoidSemiMinorAxisGeoKey = 2058
-  EllipsoidInvFlatteningGeoKey = 2059
-  VerticalDatumGeoKey = 4098
-  ProjectionGeoKey = 3074
-  ProjMethodGeoKey = 3075
-  ProjStdParallel1GeoKey = 3078
-  ProjStdParallel2GeoKey = 3079
-  ProjNatOriginLongGeoKey = 3080
-  ProjNatOriginLatGeoKey = 3081
-  ProjFalseOriginLongGeoKey = 3084
-  ProjFalseOriginLatGeoKey = 3085
-  ProjCenterLongGeoKey = 3088
-  ProjCenterLatGeoKey = 3089
-  ProjStraightVertPoleLongGeoKey = 3095
-  ProjAzimuthAngleGeoKey = 3094
-  ProjFalseEastingGeoKey = 3082
-  ProjFalseNorthingGeoKey = 3083
-  ProjFalseOriginEastingGeoKey = 3086
-  ProjFalseOriginNorthingGeoKey = 3087
-  ProjCenterEastingGeoKey = 3090
-  ProjCenterNorthingGeoKey = 3091
-  ProjScaleAtNatOriginGeoKey = 3092
-  ProjScaleAtCenterGeoKey = 3093
-end
-
-# Corresponding names in the GeoTIFF specification:
-# id - KeyID
-# tag - TIFFTagLocation
-# count - Count
-# value - ValueOffset
-struct GeoKey
-  id::GeoKeyID
-  tag::UInt16
-  count::UInt16
-  value::UInt16
-end
-
 # Corresponding names in the GeoTIFF specification:
 # version - KeyDirectoryVersion
 # revision - KeyRevision
@@ -89,19 +29,18 @@ GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[]) =
   GeoKeyDirectory(version, revision, minor, length(geokeys), geokeys)
 
 function GeoKeyDirectory(params::Vector{UInt16})
-  geokeyvalues = @view params[5:end]
-  geokeys = map(Iterators.partition(geokeyvalues, 4)) do geokey
-    id = GeoKeyID(geokey[1])
-    tag = geokey[2]
-    count = geokey[3]
-    value = geokey[4]
+  nkeys = params[4]
+  geokeys = map((1:nkeys) * 4) do i
+    id = GeoKeyID(geokey[1 + i])
+    tag = geokey[2 + i]
+    count = geokey[3 + i]
+    value = geokey[4 + i]
     GeoKey(id, tag, count, value)
   end
 
   version = params[1]
   revision = params[2]
   minor = params[3]
-  nkeys = params[4]
   GeoKeyDirectory(version, revision, minor, nkeys, geokeys)
 end
 
@@ -157,7 +96,7 @@ struct ModelTransformation
   b::Vector{Float64}
 end
 
-function ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
+function ModelTransformation(; A=_A, b=_b)
   sz = size(A)
   if !allequal(sz)
     throw(ArgumentError("`A` must be a square matrix"))
@@ -223,3 +162,103 @@ function Metadata(;
   end
   Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
 end
+
+function metadata(;
+  version=1,
+  revision=1,
+  minor=1,
+  tiepoint=nothing,
+  pixelscale=nothing,
+  transformation=(_A, _b),
+  rastertype=nothing,
+  modeltype=nothing,
+  projectedcrs=nothing,
+  geodeticcrs=nothing,
+  verticalcrs=nothing,
+  citation=nothing,
+  geodeticcitation=nothing,
+  projectedcitation=nothing,
+  verticalcitation=nothing
+)
+  geokeys = GeoKey[]
+  asciiparams = String[]
+  doubleparams = Float64[]
+
+  geokeyshort!(key, value) = !isnothing(value) && push!(geokeys, GeoKey(key, 0, 1, value))
+
+  function geokeyascii!(key, value)
+    if !isnothing(value)
+      str = value * "|" # terminator
+      offset = sum(length, asciiparams, init=0)
+      push!(geokeys, GeoKey(key, GeoAsciiParamsTag, length(str), offset))
+      push!(asciiparams, str)
+    end
+  end
+
+  function geokeydouble!(key, value)
+    if !isnothing(value)
+      offset = length(doubleparams)
+      push!(geokeys, GeoKey(key, GeoDoubleParamsTag, 1, offset))
+      push!(doubleparams, value)
+    end
+  end
+
+  # GeoTIFF Configuration GeoKeys
+  geokeyshort!(GTRasterTypeGeoKey, rastertype)
+  geokeyshort!(GTModelTypeGeoKey, modeltype)
+
+  # Model CRS
+  geokeyshort!(ProjectedCRSGeoKey, projectedcrs)
+  geokeyshort!(GeodeticCRSGeoKey, geodeticcrs)
+  geokeyshort!(VerticalGeoKey, verticalcrs)
+
+  # Citation GeoKeys
+  geokeyascii!(GTCitationGeoKey, citation)
+  geokeyascii!(GeodeticCitationGeoKey, geodeticcitation)
+  geokeyascii!(ProjectedCitationGeoKey, projectedcitation)
+  geokeyascii!(VerticalCitationGeoKey, verticalcitation)
+
+  # User defined Model CRS
+  # TODO
+
+  geokeydirectory = GeoKeyDirectory(; version, revision, minor, geokeys)
+
+  geodoubleparams = isempty(doubleparams) ? nothing : GeoDoubleParams(doubleparams)
+
+  geoasciiparams = isempty(asciiparams) ? nothing : GeoAsciiParams(join(asciiparams))
+
+  modelpixelscale = if isnothing(pixelscale)
+    nothing
+  else
+    x, y, z = pixelscale
+    ModelPixelScale(; x, y, z)
+  end
+
+  modeltiepoint = if isnothing(tiepoint)
+    nothing
+  else
+    i, j, k, x, y, z = tiepoint
+    ModelTiepoint(; i, j, k, x, y, z)
+  end
+
+  modeltransformation = if isnothing(transformation)
+    nothing
+  else
+    A, b = transformation
+    ModelTransformation(; A, b)
+  end
+
+  Metadata(; geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
+end
+
+# --------
+# HELPERS
+# --------
+
+const _A = [
+  1.0 0.0 0.0
+  0.0 1.0 0.0
+  0.0 0.0 1.0
+]
+
+const _b = [0.0, 0.0, 0.0]
