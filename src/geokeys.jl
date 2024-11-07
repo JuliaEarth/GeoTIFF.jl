@@ -62,7 +62,7 @@ struct GeoKey
   value::UInt16
 end
 
-# global values
+# generic values
 const Undefined = UInt16(0)
 const UserDefined = UInt16(32767)
 
