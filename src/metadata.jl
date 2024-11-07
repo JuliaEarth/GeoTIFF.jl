@@ -217,10 +217,18 @@ function metadata(;
   projscaleatcenter=nothing
 )
   geokeys = GeoKey[]
-  asciiparams = String[]
   doubleparams = Float64[]
+  asciiparams = String[]
 
   geokeyshort!(key, value) = !isnothing(value) && push!(geokeys, GeoKey(key, 0, 1, value))
+
+  function geokeydouble!(key, value)
+    if !isnothing(value)
+      offset = length(doubleparams)
+      push!(geokeys, GeoKey(key, GeoDoubleParamsTag, 1, offset))
+      push!(doubleparams, value)
+    end
+  end
 
   function geokeyascii!(key, value)
     if !isnothing(value)
@@ -228,14 +236,6 @@ function metadata(;
       offset = sum(length, asciiparams, init=0)
       push!(geokeys, GeoKey(key, GeoAsciiParamsTag, length(str), offset))
       push!(asciiparams, str)
-    end
-  end
-
-  function geokeydouble!(key, value)
-    if !isnothing(value)
-      offset = length(doubleparams)
-      push!(geokeys, GeoKey(key, GeoDoubleParamsTag, 1, offset))
-      push!(doubleparams, value)
     end
   end
 
