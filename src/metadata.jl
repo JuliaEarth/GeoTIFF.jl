@@ -44,9 +44,9 @@ function GeoKeyDirectory(params::Vector{UInt16})
   GeoKeyDirectory(version, revision, minor, nkeys, geokeys)
 end
 
-function params(geokeydir::GeoKeyDirectory)
-  params = [geokeydir.version, geokeydir.revision, geokeydir.minor, geokeydir.nkeys]
-  for geokey in geokeydir.geokeys
+function params(geokeydirectory::GeoKeyDirectory)
+  params = [geokeydirectory.version, geokeydirectory.revision, geokeydirectory.minor, geokeydirectory.nkeys]
+  for geokey in geokeydirectory.geokeys
     append!(params, [UInt16(geokey.id), geokey.tag, geokey.count, geokey.value])
   end
   params
@@ -56,13 +56,13 @@ struct GeoDoubleParams
   params::Vector{Float64}
 end
 
-params(geodouble::GeoDoubleParams) = geodouble.params
+params(geodoubleparams::GeoDoubleParams) = geodoubleparams.params
 
 struct GeoAsciiParams
   params::String
 end
 
-params(geoascii::GeoAsciiParams) = geoascii.params
+params(geoasciiparams::GeoAsciiParams) = geoasciiparams.params
 
 struct ModelPixelScale
   x::Float64
@@ -74,7 +74,7 @@ ModelPixelScale(; x=1.0, y=1.0, z=1.0) = ModelPixelScale(x, y, z)
 
 ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2], params[3])
 
-params(scale::ModelPixelScale) = [scale.x, scale.y, scale.z]
+params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
 
 struct ModelTiepoint
   i::Float64
@@ -89,7 +89,8 @@ ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0) = ModelTiepoint(i, j, 
 
 ModelTiepoint(params::Vector{Float64}) = ModelTiepoint(params[1], params[2], params[3], params[4], params[5], params[6])
 
-params(tiepoint::ModelTiepoint) = [tiepoint.i, tiepoint.j, tiepoint.k, tiepoint.x, tiepoint.y, tiepoint.z]
+params(modeltiepoint::ModelTiepoint) =
+  [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
 struct ModelTransformation
   A::Matrix{Float64}
@@ -125,9 +126,9 @@ function ModelTransformation(params::Vector{Float64})
   ModelTransformation(A, b)
 end
 
-function params(transform::ModelTransformation)
-  A = transform.A
-  b = transform.b
+function params(modeltransformation::ModelTransformation)
+  A = modeltransformation.A
+  b = modeltransformation.b
   [A[1, 1], A[1, 2], A[1, 3], b[1], A[2, 1], A[2, 2], A[2, 3], b[2], A[3, 1], A[3, 2], A[3, 3], b[3], 0, 0, 0, 1]
 end
 
