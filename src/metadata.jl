@@ -31,10 +31,10 @@ GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[]) =
 function GeoKeyDirectory(params::Vector{UInt16})
   nkeys = params[4]
   geokeys = map((1:nkeys) * 4) do i
-    id = GeoKeyID(geokey[1 + i])
-    tag = geokey[2 + i]
-    count = geokey[3 + i]
-    value = geokey[4 + i]
+    id = GeoKeyID(params[1 + i])
+    tag = params[2 + i]
+    count = params[3 + i]
+    value = params[4 + i]
     GeoKey(id, tag, count, value)
   end
 
