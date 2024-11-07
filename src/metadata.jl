@@ -178,7 +178,43 @@ function metadata(;
   citation=nothing,
   geodeticcitation=nothing,
   projectedcitation=nothing,
-  verticalcitation=nothing
+  verticalcitation=nothing,
+  geogangularunits=nothing,
+  geogazimuthunits=nothing,
+  geoglinearunits=nothing,
+  projlinearunits=nothing,
+  verticalunits=nothing,
+  geogangularunitsize=nothing,
+  geoglinearunitsize=nothing,
+  projlinearunitsize=nothing,
+  geodeticdatum=nothing,
+  primemeridian=nothing,
+  primemeridianlongitude=nothing,
+  ellipsoid=nothing,
+  ellipsoidsemimajoraxis=nothing,
+  ellipsoidsemiminoraxis=nothing,
+  ellipsoidinvflattening=nothing,
+  verticaldatum=nothing,
+  projection=nothing,
+  projmethod=nothing,
+  projstdparallel1=nothing,
+  projstdparallel2=nothing,
+  projnatoriginlong=nothing,
+  projnatoriginlat=nothing,
+  projfalseoriginlong=nothing,
+  projfalseoriginlat=nothing,
+  projcenterlong=nothing,
+  projcenterlat=nothing,
+  projstraightvertpolelong=nothing,
+  projazimuthangle=nothing,
+  projfalseeasting=nothing,
+  projfalsenorthing=nothing,
+  projfalseorigineasting=nothing,
+  projfalseoriginnorthing=nothing,
+  projcentereasting=nothing,
+  projcenternorthing=nothing,
+  projscaleatnatorigin=nothing,
+  projscaleatcenter=nothing
 )
   geokeys = GeoKey[]
   asciiparams = String[]
@@ -219,7 +255,58 @@ function metadata(;
   geokeyascii!(VerticalCitationGeoKey, verticalcitation)
 
   # User defined Model CRS
-  # TODO
+
+  # Units GeoKeys
+  geokeyshort!(GeogAngularUnitsGeoKey, geogangularunits)
+  geokeyshort!(GeogAzimuthUnitsGeoKey, geogazimuthunits)
+  geokeyshort!(GeogLinearUnitsGeoKey, geoglinearunits)
+  geokeyshort!(ProjLinearUnitsGeoKey, projlinearunits)
+  geokeyshort!(VerticalUnitsGeoKey, verticalunits)
+  # Unit Size GeoKeys
+  geokeydouble!(GeogAngularUnitSizeGeoKey, geogangularunitsize)
+  geokeydouble!(GeogLinearUnitSizeGeoKey, geoglinearunitsize)
+  geokeydouble!(ProjLinearUnitSizeGeoKey, projlinearunitsize)
+
+  # Geodetic Datum
+  geokeyshort!(GeodeticDatumGeoKey, geodeticdatum)
+  # PrimeMeridian
+  geokeyshort!(PrimeMeridianGeoKey, primemeridian)
+  geokeydouble!(PrimeMeridianLongitudeGeoKey, primemeridianlongitude)
+  # Ellipsoid
+  geokeyshort!(EllipsoidGeoKey, ellipsoid)
+  geokeydouble!(EllipsoidSemiMajorAxisGeoKey, ellipsoidsemimajoraxis)
+  geokeydouble!(EllipsoidSemiMinorAxisGeoKey, ellipsoidsemiminoraxis)
+  geokeydouble!(EllipsoidInvFlatteningGeoKey, ellipsoidinvflattening)
+
+  # Vertical Datum
+  geokeyshort!(VerticalDatumGeoKey, verticaldatum)
+
+  # Map Projection
+  geokeyshort!(ProjectionGeoKey, projection)
+  geokeyshort!(ProjMethodGeoKey, projmethod)
+  # Map Projection parameters
+  # Angular parameters
+  geokeydouble!(ProjStdParallel1GeoKey, projstdparallel1)
+  geokeydouble!(ProjStdParallel2GeoKey, projstdparallel2)
+  geokeydouble!(ProjNatOriginLongGeoKey, projnatoriginlong)
+  geokeydouble!(ProjNatOriginLatGeoKey, projnatoriginlat)
+  geokeydouble!(ProjFalseOriginLongGeoKey, projfalseoriginlong)
+  geokeydouble!(ProjFalseOriginLatGeoKey, projfalseoriginlat)
+  geokeydouble!(ProjCenterLongGeoKey, projcenterlong)
+  geokeydouble!(ProjCenterLatGeoKey, projcenterlat)
+  geokeydouble!(ProjStraightVertPoleLongGeoKey, projstraightvertpolelong)
+  # Azimuth angle
+  geokeydouble!(ProjAzimuthAngleGeoKey, projazimuthangle)
+  # Linear parameters
+  geokeydouble!(ProjFalseEastingGeoKey, projfalseeasting)
+  geokeydouble!(ProjFalseNorthingGeoKey, projfalsenorthing)
+  geokeydouble!(ProjFalseOriginEastingGeoKey, projfalseorigineasting)
+  geokeydouble!(ProjFalseOriginNorthingGeoKey, projfalseoriginnorthing)
+  geokeydouble!(ProjCenterEastingGeoKey, projcentereasting)
+  geokeydouble!(ProjCenterNorthingGeoKey, projcenternorthing)
+  # Scalar parameters
+  geokeydouble!(ProjScaleAtNatOriginGeoKey, projscaleatnatorigin)
+  geokeydouble!(ProjScaleAtCenterGeoKey, projscaleatcenter)
 
   geokeydirectory = GeoKeyDirectory(; version, revision, minor, geokeys)
 
