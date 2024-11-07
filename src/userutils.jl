@@ -9,8 +9,8 @@ function geokey(metadata::Metadata, id::GeoKeyID)
 end
 
 function geokeyvalue(metadata::Metadata, id::GeoKeyID)
-  geokey = geokey(metadata, id)
-  isnothing(geokey) ? nothing : geokey.value
+  gk = geokey(metadata, id)
+  isnothing(gk) ? nothing : gk.value
 end
 
 rastertype(metadata::Metadata) = geokeyvalue(metadata, GTRasterTypeGeoKey)
