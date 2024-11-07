@@ -226,7 +226,7 @@ function metadata(;
   function geokeydouble!(key, value)
     if !isnothing(value)
       offset = length(doubleparams)
-      push!(geokeys, GeoKey(key, GeoDoubleParamsTag, 1, offset))
+      push!(geokeys, GeoKey(key, UInt16(GeoDoubleParamsTag), 1, offset))
       push!(doubleparams, value)
     end
   end
@@ -235,7 +235,7 @@ function metadata(;
     if !isnothing(value)
       str = value * "|" # terminator
       offset = sum(length, asciiparams, init=0)
-      push!(geokeys, GeoKey(key, GeoAsciiParamsTag, length(str), offset))
+      push!(geokeys, GeoKey(key, UInt16(GeoAsciiParamsTag), length(str), offset))
       push!(asciiparams, str)
     end
   end
