@@ -154,10 +154,10 @@ function Metadata(;
   if (haspixelscale || hastiepoint) && !(haspixelscale && hastiepoint)
     throw(ArgumentError("ModelPixelScale and ModelTiepoint must be defined together"))
   end
-  if !hastiepoint && !hastransformation
+  if !haspixelscale && !hastransformation
     throw(ArgumentError("GeoTIFF requires a ModelPixelScale with ModelTiepoint or a ModelTransformation"))
   end
-  if hastiepoint && hastransformation
+  if haspixelscale && hastransformation
     throw(ArgumentError("only one of ModelPixelScale with ModelTiepoint or ModelTransformation can be defined"))
   end
   Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
@@ -167,9 +167,9 @@ function metadata(;
   version=1,
   revision=1,
   minor=1,
-  tiepoint=nothing,
   pixelscale=nothing,
-  transformation=(_A, _b),
+  tiepoint=nothing,
+  transformation=isnothing(pixelscale) && isnothing(tiepoint) ? (_A, _b) : nothing,
   rastertype=nothing,
   modeltype=nothing,
   projectedcrs=nothing,
