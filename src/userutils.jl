@@ -40,11 +40,11 @@ function affineparams2D(metadata::Metadata)
     (; i, j, x, y) = tiepoint
     tx = x - i / sx
     ty = y + j / sy
-    A = [
+    A = SA[
       sx 0
       0 -sy
     ]
-    b = [tx, ty]
+    b = SA[tx, ty]
     A, b
   elseif !isnothing(transformation)
     transformation.A[1:2, 1:2], transformation.b[1:2]
@@ -65,12 +65,12 @@ function affineparams3D(metadata::Metadata)
     tx = x - i / sx
     ty = y + j / sy
     tz = z - k / sz
-    A = [
+    A = SA[
       sx 0 0
       0 -sy 0
       0 0 sz
     ]
-    b = [tx, ty, tz]
+    b = SA[tx, ty, tz]
     A, b
   elseif !isnothing(transformation)
     transformation.A, transformation.b
