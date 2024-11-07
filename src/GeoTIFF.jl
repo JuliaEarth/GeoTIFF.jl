@@ -7,6 +7,7 @@ module GeoTIFF
 using TiffImages: AbstractTIFF, DenseTaggedImage, WidePixel
 using ColorTypes: Colorant, Gray
 using MappedArrays: mappedarray
+using StaticArrays: SVector, SMatrix, SA
 using FixedPointNumbers: Fixed, Normed
 
 import TiffImages

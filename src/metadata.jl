@@ -93,8 +93,8 @@ params(modeltiepoint::ModelTiepoint) =
   [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
 struct ModelTransformation
-  A::Matrix{Float64}
-  b::Vector{Float64}
+  A::SMatrix{3,3,Float64,9}
+  b::SVector{3,Float64}
 end
 
 function ModelTransformation(; A=_A, b=_b)
@@ -107,9 +107,9 @@ function ModelTransformation(; A=_A, b=_b)
     throw(ArgumentError("`A` and `b` must have the same dimension"))
   end
   A′, b′ = if dim == 2
-    [A[1, 1] A[1, 2] 0; A[2, 1] A[2, 2] 0; 0 0 0], [b[1], b[2], 0]
+    SA[A[1, 1] A[1, 2] 0; A[2, 1] A[2, 2] 0; 0 0 0], SA[b[1], b[2], 0]
   elseif dim == 3
-    A, b
+    SMatrix{3,3}(A), SVector{3}(b)
   else
     throw(ArgumentError("only 2D and 3D transformations are supported"))
   end
@@ -117,12 +117,12 @@ function ModelTransformation(; A=_A, b=_b)
 end
 
 function ModelTransformation(params::Vector{Float64})
-  A = [
+  A = SA[
     params[1] params[2] params[3]
     params[5] params[6] params[7]
     params[9] params[10] params[11]
   ]
-  b = [params[4], params[8], params[12]]
+  b = SA[params[4], params[8], params[12]]
   ModelTransformation(A, b)
 end
 
@@ -343,10 +343,10 @@ end
 # HELPERS
 # --------
 
-const _A = [
+const _A = SA[
   1.0 0.0 0.0
   0.0 1.0 0.0
   0.0 0.0 1.0
 ]
 
-const _b = [0.0, 0.0, 0.0]
+const _b = SA[0.0, 0.0, 0.0]
