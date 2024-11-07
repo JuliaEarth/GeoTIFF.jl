@@ -30,7 +30,30 @@ function epsgcode(metadata::Metadata)
   end
 end
 
-function affineparams(metadata::Metadata)
+function affineparams2D(metadata::Metadata)
+  pixelscale = metadata.modelpixelscale
+  tiepoint = metadata.modeltiepoint
+  transformation = metadata.modeltransformation
+  if !isnothing(pixelscale) && !isnothing(tiepoint)
+    sx = pixelscale.x
+    sy = pixelscale.y
+    (; i, j, x, y) = tiepoint
+    tx = x - i / sx
+    ty = y + j / sy
+    A = [
+      sx 0
+      0 -sy
+    ]
+    b = [tx, ty]
+    A, b
+  elseif !isnothing(transformation)
+    transformation.A[1:2, 1:2], transformation.b[1:2]
+  else
+    nothing
+  end
+end
+
+function affineparams3D(metadata::Metadata)
   pixelscale = metadata.modelpixelscale
   tiepoint = metadata.modeltiepoint
   transformation = metadata.modeltransformation
