@@ -2,17 +2,35 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoTIFF.geokey(metadata, id)
+
+Find the GeoKey that has the `id` in the `metadata`.
+If it is not stored in the metadata, `nothing` will be returned.
+"""
 function geokey(metadata::Metadata, id::GeoKeyID)
   geokeys = metadata.geokeydirectory.geokeys
   i = findfirst(geokey -> geokey.id == id, geokeys)
   isnothing(i) ? nothing : geokeys[i]
 end
 
+"""
+    GeoTIFF.geokeyvalue(metadata, id)
+
+Find the GeoKey that has the `id` in the `metadata` and return it value.
+If it is not stored in the metadata, `nothing` will be returned.
+"""
 function geokeyvalue(metadata::Metadata, id::GeoKeyID)
   gk = geokey(metadata, id)
   isnothing(gk) ? nothing : gk.value
 end
 
+"""
+    GeoTIFF.geokeydouble(metadata, id)
+
+Find the GeoKey that has the `id` in the `metadata` and return it double parameter.
+If it is not stored in the metadata, `nothing` will be returned.
+"""
 function geokeydouble(metadata::Metadata, id::GeoKeyID)
   dp = metadata.geodoubleparams
   gk = geokey(metadata, id)
@@ -23,6 +41,12 @@ function geokeydouble(metadata::Metadata, id::GeoKeyID)
   end
 end
 
+"""
+    GeoTIFF.geokeyascii(metadata, id)
+
+Find the GeoKey that has the `id` in the metadata and return it ASCII parameter.
+If it is not stored in the metadata, `nothing` will be returned.
+"""
 function geokeyascii(metadata::Metadata, id::GeoKeyID)
   ap = metadata.geoasciiparams
   gk = geokey(metadata, id)
@@ -34,10 +58,25 @@ function geokeyascii(metadata::Metadata, id::GeoKeyID)
   end
 end
 
+"""
+    GeoTIFF.rastertype(metadata)
+
+Raster type of the GeoTIFF. If it is not stored in the `metadata`, `nothing` will be returned.
+"""
 rastertype(metadata::Metadata) = geokeyvalue(metadata, GTRasterTypeGeoKey)
 
+"""
+    GeoTIFF.modeltype(metadata)
+
+Model type of the GeoTIFF. If it is not stored in the `metadata`, `nothing` will be returned.
+"""
 modeltype(metadata::Metadata) = geokeyvalue(metadata, GTModelTypeGeoKey)
 
+"""
+    GeoTIFF.epsgcode(metadata)
+
+EPSG Code of the GeoTIFF CRS. If it is not stored in the `metadata`, `nothing` will be returned.
+"""
 function epsgcode(metadata::Metadata)
   mt = modeltype(metadata)
   isnothing(mt) && return nothing
@@ -51,6 +90,12 @@ function epsgcode(metadata::Metadata)
   end
 end
 
+"""
+    GeoTIFF.affineparams2D(metadata)
+
+Affine 2D parameters `(A, b)` of the GeoTIFF raster-to-model transformation. 
+If it is not stored in the `metadata`, `nothing` will be returned.
+"""
 function affineparams2D(metadata::Metadata)
   pixelscale = metadata.modelpixelscale
   tiepoint = metadata.modeltiepoint
@@ -74,6 +119,12 @@ function affineparams2D(metadata::Metadata)
   end
 end
 
+"""
+    GeoTIFF.affineparams3D(metadata)
+
+Affine 3D parameters `(A, b)` of the GeoTIFF raster-to-model transformation. 
+If it is not stored in the `metadata`, `nothing` will be returned.
+"""
 function affineparams3D(metadata::Metadata)
   pixelscale = metadata.modelpixelscale
   tiepoint = metadata.modeltiepoint
