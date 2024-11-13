@@ -7,8 +7,8 @@
 
 Image type returned by the [`GeoTIFF.load`](@ref) function.
 
-Check the [`GeoTIFF.tiff`](@ref) to get the tiff image,
-and the [`GeoTIFF.metadata`](@ref) to get the GeoTIFF metadata.
+See the [`GeoTIFF.tiff`](@ref) and [`GeoTIFF.metadata`](@ref) functions
+to get the TIFF image and metadata respectively.
 """
 struct GeoTIFFImage{T,N,I<:AbstractTIFF{T,N}} <: AbstractArray{T,N}
   tiff::I

@@ -25,11 +25,11 @@ end
 The GeoKeyDirectory stores the GeoKeys and the format version.
 
 Corresponding field names in the GeoTIFF specification:
-* `version` - KeyDirectoryVersion
-* `revision` - KeyRevision
-* `minor` - MinorRevision
-* `nkeys` - NumberOfKeys
-* `geokeys` - Key Entry Set
+* `version`: KeyDirectoryVersion
+* `revision`: KeyRevision
+* `minor`: MinorRevision
+* `nkeys`: NumberOfKeys
+* `geokeys`: Key Entry Set
 
 See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
 section of the GeoTIFF specification for a explanation of each field.
@@ -204,15 +204,20 @@ end
 Stores all GeoTIFF format metadata.
 
 Corresponding field names in the GeoTIFF specification:
-* `geokeydirectory` - GeoKeyDirectoryTag
-* `geodoubleparams` - GeoDoubleParamsTag
-* `geoasciiparams` - GeoAsciiParamsTag
-* `modeltiepoint` - ModelPixelScaleTag
-* `modeltiepoint` - ModelTiepointTag
-* `modeltransformation` - ModelTransformationTag
+* `geokeydirectory`: GeoKeyDirectoryTag
+* `geodoubleparams`: GeoDoubleParamsTag
+* `geoasciiparams`: GeoAsciiParamsTag
+* `modeltiepoint`: ModelPixelScaleTag
+* `modeltiepoint`: ModelTiepointTag
+* `modeltransformation`: ModelTransformationTag
 
 See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
 section of the GeoTIFF specification for more details.
+
+### Notes
+
+* Construct metadata manually is hard work. See the [`GeoTIFF.metadata`](@ref) function
+  for a more user-friendly way to construct metadata.
 """
 struct Metadata
   geokeydirectory::GeoKeyDirectory
@@ -246,6 +251,51 @@ function Metadata(;
   Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
 end
 
+"""
+    GeoTIFF.metadata(; [parameters...])
+
+Construct a GeoTIFF metadata with passed parameter values.
+
+# Parameters
+
+## GeoTIFF version
+* `version` (integer): KeyDirectoryVersion of the GeoTIFF (default to `1`);
+* `revision` (integer): KeyRevision of the GeoTIFF (default to `1`);
+* `minor` (integer): MinorRevision of the GeoTIFF (default to `1`);
+  * `0`: GeoTIFF 1.0 version;
+  * `1`: GeoTIFF 1.1 version;
+
+## Raster to Model transformation
+* `pixelscale` (3-tuple of float): `(x, y, z)` pixel scale parameters (default to `nothing`);
+  * Must be passed together with `tiepoint`;
+* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters (default to `nothing`);
+* `transformation` (matrix of float, vector of float): `(A, b)` affine parameters (default to `A` as identity matrix and `b` as vector of zeros
+  if if no transformation is passed);
+  * Should not be passed if `pixelscale` and `tiepoint` have been passed;
+
+## GeoKeys
+
+All of the parameters of this section can receive the values 
+`GeoTIFF.Undefined` and `GeoTIFF.UserDefined` in addition allowed values.
+
+### GeoTIFF Configuration
+
+* `rastertype` (`GeoTIFF.PixelIsArea` | `GeoTIFF.PixelIsPoint`): raster type of the GeoTIFF (default to `nothing`);
+* `modeltype` (`GeoTIFF.Projected2D` | `GeoTIFF.Geographic2D` | `GeoTIFF.Geocentric3D`): model type of the GeoTIFF (default to `nothing`);
+  * If `GeoTIFF.Projected2D`, then `projectcrs` must be passed;
+  * If `GeoTIFF.Geographic2D` or `GeoTIFF.Geocentric3D`, then `geodeticcrs` must be passed;
+
+### Model CRS
+* `projectcrs` (1024-32766): EPSG code of the Projected CRS (default to `nothing`);
+  * If `GeoTIFF.UserDefined`, then `projectedcitation`, `geodeticcrs` and `projection` must be passed;
+* `geodeticcrs` (1024-32766): EPSG code of the Geographic or Geocentric CRS (default to `nothing`);
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `geodeticcitation` and `geogangularunits` (for Geographic CRS) 
+  or `geoglinearunits` (for Geocentric CRS) must be passed;
+* `verticalcrs` (1024-32766): EPSG code of the Vertical CRS (default to `nothing`);
+
+### Citation
+* 
+"""
 function metadata(;
   version=1,
   revision=1,
@@ -322,7 +372,7 @@ function metadata(;
     end
   end
 
-  # GeoTIFF Configuration GeoKeys
+  # GeoTIFF Configuration
   geokeyshort!(GTRasterTypeGeoKey, rastertype)
   geokeyshort!(GTModelTypeGeoKey, modeltype)
 
