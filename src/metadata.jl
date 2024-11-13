@@ -2,6 +2,14 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoTag
+
+Enum of all tags supported by GeoTIFF.
+
+See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
+section of the GeoTIFF Spec for more details.
+"""
 @enum GeoTag::UInt16 begin
   GeoKeyDirectoryTag = 34735
   GeoDoubleParamsTag = 34736
@@ -11,12 +19,21 @@
   ModelTransformationTag = 34264
 end
 
-# Corresponding names in the GeoTIFF specification:
-# version - KeyDirectoryVersion
-# revision - KeyRevision
-# minor - MinorRevision
-# nkeys - NumberOfKeys
-# geokeys - Key Entry Set
+"""
+    GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[])
+
+The GeoKeyDirectory stores the GeoKeys and the format version.
+
+Corresponding field names in the GeoTIFF specification:
+* `version` - KeyDirectoryVersion
+* `revision` - KeyRevision
+* `minor` - MinorRevision
+* `nkeys` - NumberOfKeys
+* `geokeys` - Key Entry Set
+
+See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
+section of the GeoTIFF specification for a explanation of each field.
+"""
 struct GeoKeyDirectory
   version::UInt16
   revision::UInt16
@@ -52,30 +69,62 @@ function params(geokeydirectory::GeoKeyDirectory)
   params
 end
 
+"""
+    GeoDoubleParams(params)
+
+The GeoDoubleParams stores the double (Float64) parameters of the GeoKeys.
+
+See [Requirements Class GeoDoubleParamsTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geodoubleparamstag)
+section of the GeoTIFF specification for more details.
+"""
 struct GeoDoubleParams
   params::Vector{Float64}
 end
 
 params(geodoubleparams::GeoDoubleParams) = geodoubleparams.params
 
+"""
+    GeoAsciiParams(params)
+
+The GeoAsciiParams stores the ASCII string parameters of the GeoKeys.
+
+See [Requirements Class GeoAsciiParamsTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geoasciiparamstag)
+section of the GeoTIFF specification for more details.
+"""
 struct GeoAsciiParams
   params::String
 end
 
 params(geoasciiparams::GeoAsciiParams) = geoasciiparams.params
 
+"""
+    ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
+
+The ModelPixelScale contains the scale parameters of the raster-to-model transformation.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelPixelScale
   x::Float64
   y::Float64
   z::Float64
 end
 
-ModelPixelScale(; x=1.0, y=1.0, z=1.0) = ModelPixelScale(x, y, z)
+ModelPixelScale(; x=1.0, y=-1.0, z=1.0) = ModelPixelScale(x, y, z)
 
 ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2], params[3])
 
 params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
 
+"""
+    ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0)
+
+The ModelTiepoint contains the tie point parameters of the raster-to-model transformation.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelTiepoint
   i::Float64
   j::Float64
@@ -92,6 +141,16 @@ ModelTiepoint(params::Vector{Float64}) = ModelTiepoint(params[1], params[2], par
 params(modeltiepoint::ModelTiepoint) =
   [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
+"""
+    ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
+
+The ModelTransformation contains the affine parameters of the raster-to-model transformation.
+
+For convinience, the 4x4 transformation matrix of the ModelTransformation, is splited into `A` and `b`.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelTransformation
   A::SMatrix{3,3,Float64,9}
   b::SVector{3,Float64}
@@ -132,6 +191,29 @@ function params(modeltransformation::ModelTransformation)
   [A[1, 1], A[1, 2], A[1, 3], b[1], A[2, 1], A[2, 2], A[2, 3], b[2], A[3, 1], A[3, 2], A[3, 3], b[3], 0, 0, 0, 1]
 end
 
+"""
+    Metadata(;
+      geokeydirectory=GeoKeyDirectory(),
+      geodoubleparams=nothing,
+      geoasciiparams=nothing,
+      modelpixelscale=nothing,
+      modeltiepoint=nothing,
+      modeltransformation=ModelTransformation()
+    )
+
+Stores all GeoTIFF format metadata.
+
+Corresponding field names in the GeoTIFF specification:
+* `geokeydirectory` - GeoKeyDirectoryTag
+* `geodoubleparams` - GeoDoubleParamsTag
+* `geoasciiparams` - GeoAsciiParamsTag
+* `modeltiepoint` - ModelPixelScaleTag
+* `modeltiepoint` - ModelTiepointTag
+* `modeltransformation` - ModelTransformationTag
+
+See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
+section of the GeoTIFF specification for more details.
+"""
 struct Metadata
   geokeydirectory::GeoKeyDirectory
   geodoubleparams::Union{GeoDoubleParams,Nothing}

@@ -2,6 +2,14 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoKeyID
+
+Enum of all GeoKey IDs supported by GeoTIFF.
+
+See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
+section of the GeoTIFF specification for more details.
+"""
 @enum GeoKeyID::UInt16 begin
   GTRasterTypeGeoKey = 1025
   GTModelTypeGeoKey = 1024
@@ -53,11 +61,16 @@ end
 """
     GeoTIFF.GeoKey(id, tag, count, value)
 
-GeoKey Entry with KeyID `id`, TIFFTagLocation `tag`, Count `count`
-and ValueOffset `value`.
+GeoKey Entry that is stored in [`GeoKeyDirectory`](@ref).
+
+Corresponding field names in the GeoTIFF specification:
+* `id` - KeyID
+* `tag` - TIFFTagLocation
+* `count` - Count
+* `value` - ValueOffset
 
 See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
-section of the GeoTIFF Spec for a explanation of each field.
+section of the GeoTIFF specification for a explanation of each field.
 """
 struct GeoKey
   id::GeoKeyID
