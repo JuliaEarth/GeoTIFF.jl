@@ -13,6 +13,27 @@ function geokeyvalue(metadata::Metadata, id::GeoKeyID)
   isnothing(gk) ? nothing : gk.value
 end
 
+function geokeydouble(metadata::Metadata, id::GeoKeyID)
+  dp = metadata.geodoubleparams
+  gk = geokey(metadata, id)
+  if isnothing(dp) || isnothing(gk) || gk.count > 1
+    nothing
+  else
+    dp.params[gk.value + 1]
+  end
+end
+
+function geokeyascii(metadata::Metadata, id::GeoKeyID)
+  ap = metadata.geoasciiparams
+  gk = geokey(metadata, id)
+  if isnothing(ap) || isnothing(gk)
+    nothing
+  else
+    str = ap.params[(gk.value + 1):(gk.value + gk.count)]
+    rstrip(str, '|') # terminator
+  end
+end
+
 rastertype(metadata::Metadata) = geokeyvalue(metadata, GTRasterTypeGeoKey)
 
 modeltype(metadata::Metadata) = geokeyvalue(metadata, GTModelTypeGeoKey)
