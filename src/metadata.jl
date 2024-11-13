@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------
 
 """
-    GeoTag
+    GeoTIFF.GeoTag
 
 Enum of all tags supported by GeoTIFF.
 
@@ -20,7 +20,7 @@ section of the GeoTIFF Spec for more details.
 end
 
 """
-    GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[])
+    GeoTIFF.GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[])
 
 The GeoKeyDirectory stores the GeoKeys and the format version.
 
@@ -70,7 +70,7 @@ function params(geokeydirectory::GeoKeyDirectory)
 end
 
 """
-    GeoDoubleParams(params)
+    GeoTIFF.GeoDoubleParams(params)
 
 The GeoDoubleParams stores the double (Float64) parameters of the GeoKeys.
 
@@ -84,7 +84,7 @@ end
 params(geodoubleparams::GeoDoubleParams) = geodoubleparams.params
 
 """
-    GeoAsciiParams(params)
+    GeoTIFF.GeoAsciiParams(params)
 
 The GeoAsciiParams stores the ASCII string parameters of the GeoKeys.
 
@@ -98,7 +98,7 @@ end
 params(geoasciiparams::GeoAsciiParams) = geoasciiparams.params
 
 """
-    ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
+    GeoTIFF.ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
 
 The ModelPixelScale contains the scale parameters of the raster-to-model transformation.
 
@@ -118,7 +118,7 @@ ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2],
 params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
 
 """
-    ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0)
+    GeoTIFF.ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0)
 
 The ModelTiepoint contains the tie point parameters of the raster-to-model transformation.
 
@@ -142,7 +142,7 @@ params(modeltiepoint::ModelTiepoint) =
   [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
 """
-    ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
+    GeoTIFF.ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
 
 The ModelTransformation contains the affine parameters of the raster-to-model transformation.
 
@@ -192,7 +192,7 @@ function params(modeltransformation::ModelTransformation)
 end
 
 """
-    Metadata(;
+    GeoTIFF.Metadata(;
       geokeydirectory=GeoKeyDirectory(),
       geodoubleparams=nothing,
       geoasciiparams=nothing,

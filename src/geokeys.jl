@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------
 
 """
-    GeoKeyID
+    GeoTIFF.GeoKeyID
 
 Enum of all GeoKey IDs supported by GeoTIFF.
 
