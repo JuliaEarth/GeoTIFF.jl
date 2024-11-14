@@ -63,7 +63,10 @@ end
 
 function params(geokeydirectory::GeoKeyDirectory)
   params = [geokeydirectory.version, geokeydirectory.revision, geokeydirectory.minor, geokeydirectory.nkeys]
-  for geokey in geokeydirectory.geokeys
+  # Requirement 1.6 (https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
+  # the GeoKeys must be written with the IDs sorted in ascending order
+  geokeys = sort(geokeydirectory.geokeys, by=(gk -> gk.id))
+  for geokey in geokeys
     append!(params, [UInt16(geokey.id), geokey.tag, geokey.count, geokey.value])
   end
   params
