@@ -369,6 +369,9 @@ except the string and float parameters.
 * `projcenternorthing` (float): Northing coordinate of projection center;
 * `projscaleatnatorigin` (float): Scale of natural origin;
 * `projscaleatcenter` (float): Scale of of projection center;
+
+See [Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements)
+section of the GeoTIFF specification for more details.
 """
 function metadata(;
   version=1,
