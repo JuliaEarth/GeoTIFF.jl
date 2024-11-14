@@ -17,7 +17,9 @@ Get the latest stable release with Julia's package manager:
 
 ### Loading GeoTIFF files
 
-The `GeoTIFF.load` function loads the TIFF image and the GeoTIFF metadata:
+The `GeoTIFF.load` function loads the TIFF image,
+using the [TiffImages.jl](https://github.com/tlnagy/TiffImages.jl) package,
+and the GeoTIFF metadata:
 
 ```julia
 julia> geotiff = GeoTIFF.load("utm.tif")
@@ -56,15 +58,13 @@ The `GeoTIFF.save` function can be used to save tiff images, color arrays,
 or channel arrays into new GeoTIFF files with given metadata:
 
 ```julia
-julia> using TiffImages, Colors
+julia> using Colors
 
-julia> tiff = TiffImages.load("test.tif");
-
-julia> GeoTIFF.save("tiff_img.tiff", tiff) # default metadata
+julia> GeoTIFF.save("geotiff.tiff", geotiff)
 
 julia> colors = rand(Gray{Float64}, 100, 100);
 
-julia> GeoTIFF.save("colors.tiff", colors)
+julia> GeoTIFF.save("colors.tiff", colors) # default metadata
 
 julia> channel1 = rand(100, 100);
 
@@ -74,7 +74,7 @@ julia> channel3 = rand(100, 100);
 
 julia> channel4 = rand(100, 100);
 
-julia> GeoTIFF.save("channels.tiff", channel1, channel2, channel3, channel4)
+julia> GeoTIFF.save("channels.tiff", channel1, channel2, channel3, channel4) # default metadata
 ```
 
 Use the `GeoTIFF.metadata` function to easily construct new GeoTIFF metadata to georeference the image:
