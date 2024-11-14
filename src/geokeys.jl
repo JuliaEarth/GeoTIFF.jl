@@ -2,6 +2,14 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoTIFF.GeoKeyID
+
+Enum of all GeoKey IDs supported by GeoTIFF.
+
+See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
+section of the GeoTIFF specification for more details.
+"""
 @enum GeoKeyID::UInt16 begin
   GTRasterTypeGeoKey = 1025
   GTModelTypeGeoKey = 1024
@@ -50,11 +58,20 @@
   ProjScaleAtCenterGeoKey = 3093
 end
 
-# Corresponding names in the GeoTIFF specification:
-# id - KeyID
-# tag - TIFFTagLocation
-# count - Count
-# value - ValueOffset
+"""
+    GeoTIFF.GeoKey(id, tag, count, value)
+
+GeoKey Entry that is stored in [`GeoKeyDirectory`](@ref).
+
+Corresponding field names in the GeoTIFF specification:
+* `id`: KeyID
+* `tag`: TIFFTagLocation
+* `count`: Count
+* `value`: ValueOffset
+
+See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
+section of the GeoTIFF specification for a explanation of each field.
+"""
 struct GeoKey
   id::GeoKeyID
   tag::UInt16
@@ -63,14 +80,64 @@ struct GeoKey
 end
 
 # generic values
+
+"""
+    GeoTIFF.Undefined
+
+GeoKey value that indicate intentionally omitted parameters.
+"""
 const Undefined = UInt16(0)
+
+"""
+    GeoTIFF.UserDefined
+
+GeoKey value that indicate user defined parameters.
+"""
 const UserDefined = UInt16(32767)
 
 # GTRasterTypeGeoKey values
+
+"""
+    GeoTIFF.PixelIsArea
+
+PixelIsArea raster type, i.e each pixel of the image is a grid element.
+"""
 const PixelIsArea = UInt16(1)
+
+"""
+    GeoTIFF.PixelIsPoint
+
+PixelIsPoint raster type, i.e each pixel of the image is a grid vertex.
+"""
 const PixelIsPoint = UInt16(2)
 
 # GTModelTypeGeoKey values
+
+"""
+    GeoTIFF.Projected2D
+
+Projected CRS model type.
+"""
 const Projected2D = UInt16(1)
+
+"""
+    GeoTIFF.Geographic2D
+
+Geographic 2D CRS model type.
+
+### Notes
+
+* GeoTIFF specification uses the term Geographic2D to mean geodetic latlon coordinates;
+"""
 const Geographic2D = UInt16(2)
+
+"""
+    GeoTIFF.Geocentric3D
+
+Geocentric 3D CRS model type.
+
+### Notes
+
+* GeoTIFF specification uses the term Geocentric3D to mean Cartesian 3D coordinates;
+"""
 const Geocentric3D = UInt16(3)

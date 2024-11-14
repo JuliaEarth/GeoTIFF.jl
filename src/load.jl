@@ -2,6 +2,18 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoTIFF.load(fname; kwargs...)
+
+Load a GeoTIFF file returning an image with the processed GeoTIFF metadata.
+The keyword arguments are forward to the `TiffImages.load` function.
+
+### Notes
+
+* TIFF files without GeoTIFF metadata are load with default and mandatory metadata:
+  * [`GeoKeyDirectory`](@ref) without GeoKeys and only with GeoTIFF version.
+  * [`ModelTransformation`](@ref) with `A` as identity matrix and `b` as vector of zeros.
+"""
 function load(fname; kwargs...)
   tiff = TiffImages.load(fname; kwargs...)
   metadata = _getmetadata(tiff)

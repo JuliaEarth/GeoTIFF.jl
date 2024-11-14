@@ -2,6 +2,14 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # -----------------------------------------------------------------
 
+"""
+    GeoTIFF.GeoTag
+
+Enum of all tags supported by GeoTIFF.
+
+See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
+section of the GeoTIFF Spec for more details.
+"""
 @enum GeoTag::UInt16 begin
   GeoKeyDirectoryTag = 34735
   GeoDoubleParamsTag = 34736
@@ -11,12 +19,21 @@
   ModelTransformationTag = 34264
 end
 
-# Corresponding names in the GeoTIFF specification:
-# version - KeyDirectoryVersion
-# revision - KeyRevision
-# minor - MinorRevision
-# nkeys - NumberOfKeys
-# geokeys - Key Entry Set
+"""
+    GeoTIFF.GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[])
+
+The GeoKeyDirectory stores the GeoKeys and the format version.
+
+Corresponding field names in the GeoTIFF specification:
+* `version`: KeyDirectoryVersion
+* `revision`: KeyRevision
+* `minor`: MinorRevision
+* `nkeys`: NumberOfKeys
+* `geokeys`: Key Entry Set
+
+See [Requirements Class GeoKeyDirectoryTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geokeydirectorytag)
+section of the GeoTIFF specification for a explanation of each field.
+"""
 struct GeoKeyDirectory
   version::UInt16
   revision::UInt16
@@ -52,30 +69,62 @@ function params(geokeydirectory::GeoKeyDirectory)
   params
 end
 
+"""
+    GeoTIFF.GeoDoubleParams(params)
+
+The GeoDoubleParams stores the double (Float64) parameters of the GeoKeys.
+
+See [Requirements Class GeoDoubleParamsTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geodoubleparamstag)
+section of the GeoTIFF specification for more details.
+"""
 struct GeoDoubleParams
   params::Vector{Float64}
 end
 
 params(geodoubleparams::GeoDoubleParams) = geodoubleparams.params
 
+"""
+    GeoTIFF.GeoAsciiParams(params)
+
+The GeoAsciiParams stores the ASCII string parameters of the GeoKeys.
+
+See [Requirements Class GeoAsciiParamsTag](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_geoasciiparamstag)
+section of the GeoTIFF specification for more details.
+"""
 struct GeoAsciiParams
   params::String
 end
 
 params(geoasciiparams::GeoAsciiParams) = geoasciiparams.params
 
+"""
+    GeoTIFF.ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
+
+The ModelPixelScale contains the scale parameters of the raster-to-model transformation.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelPixelScale
   x::Float64
   y::Float64
   z::Float64
 end
 
-ModelPixelScale(; x=1.0, y=1.0, z=1.0) = ModelPixelScale(x, y, z)
+ModelPixelScale(; x=1.0, y=-1.0, z=1.0) = ModelPixelScale(x, y, z)
 
 ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2], params[3])
 
 params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
 
+"""
+    GeoTIFF.ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0)
+
+The ModelTiepoint contains the tie point parameters of the raster-to-model transformation.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelTiepoint
   i::Float64
   j::Float64
@@ -92,6 +141,16 @@ ModelTiepoint(params::Vector{Float64}) = ModelTiepoint(params[1], params[2], par
 params(modeltiepoint::ModelTiepoint) =
   [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
+"""
+    GeoTIFF.ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
+
+The ModelTransformation contains the affine parameters of the raster-to-model transformation.
+
+For convinience, the 4x4 transformation matrix of the ModelTransformation, is splited into `A` and `b`.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
 struct ModelTransformation
   A::SMatrix{3,3,Float64,9}
   b::SVector{3,Float64}
@@ -132,6 +191,34 @@ function params(modeltransformation::ModelTransformation)
   [A[1, 1], A[1, 2], A[1, 3], b[1], A[2, 1], A[2, 2], A[2, 3], b[2], A[3, 1], A[3, 2], A[3, 3], b[3], 0, 0, 0, 1]
 end
 
+"""
+    GeoTIFF.Metadata(;
+      geokeydirectory=GeoKeyDirectory(),
+      geodoubleparams=nothing,
+      geoasciiparams=nothing,
+      modelpixelscale=nothing,
+      modeltiepoint=nothing,
+      modeltransformation=ModelTransformation()
+    )
+
+Stores all GeoTIFF format metadata.
+
+Corresponding field names in the GeoTIFF specification:
+* `geokeydirectory`: GeoKeyDirectoryTag
+* `geodoubleparams`: GeoDoubleParamsTag
+* `geoasciiparams`: GeoAsciiParamsTag
+* `modeltiepoint`: ModelPixelScaleTag
+* `modeltiepoint`: ModelTiepointTag
+* `modeltransformation`: ModelTransformationTag
+
+See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
+section of the GeoTIFF specification for more details.
+
+### Notes
+
+* Construct metadata manually is hard work. See the [`GeoTIFF.metadata`](@ref) function
+  for a more user-friendly way to construct metadata.
+"""
 struct Metadata
   geokeydirectory::GeoKeyDirectory
   geodoubleparams::Union{GeoDoubleParams,Nothing}
@@ -164,6 +251,128 @@ function Metadata(;
   Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
 end
 
+"""
+    GeoTIFF.metadata(; [parameters...])
+
+Construct a GeoTIFF metadata with parameter values.
+
+# Parameters
+
+## GeoTIFF version
+* `version` (integer): KeyDirectoryVersion of the GeoTIFF (default to `1`);
+* `revision` (integer): KeyRevision of the GeoTIFF (default to `1`);
+* `minor` (integer): MinorRevision of the GeoTIFF (default to `1`);
+  * `0`: GeoTIFF 1.0 version;
+  * `1`: GeoTIFF 1.1 version;
+
+## Raster to Model transformation
+* `pixelscale` (3-tuple of float): `(x, y, z)` pixel scale parameters;
+  * Must be set together with `tiepoint`;
+* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters;
+* `transformation` (matrix of float, vector of float): `(A, b)` affine parameters (default to `A` as identity matrix and `b` as vector of zeros
+  if no transformation is passed);
+  * Should not be set if `pixelscale` and `tiepoint` have been set;
+
+All parameters in the following sections can receive the values
+`GeoTIFF.Undefined` and `GeoTIFF.UserDefined` in addition to the allowed values, 
+except the string and float parameters.
+
+## GeoTIFF Configuration
+* `rastertype` (`GeoTIFF.PixelIsArea` | `GeoTIFF.PixelIsPoint`): raster type of the GeoTIFF;
+* `modeltype` (`GeoTIFF.Projected2D` | `GeoTIFF.Geographic2D` | `GeoTIFF.Geocentric3D`): model type of the GeoTIFF;
+  * If `GeoTIFF.Projected2D`, then `projectcrs` must be set;
+  * If `GeoTIFF.Geographic2D` or `GeoTIFF.Geocentric3D`, then `geodeticcrs` must be set;
+
+## Model CRS
+* `projectcrs` (1024-32766): EPSG code of the Projected CRS;
+  * If `GeoTIFF.UserDefined`, then `projectedcitation`, `geodeticcrs` and `projection` must be set;
+* `geodeticcrs` (1024-32766): EPSG code of the Geographic or Geocentric CRS;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `geodeticdatum` and `geogangularunits` (for Geographic CRS) 
+  or `geoglinearunits` (for Geocentric CRS) must be set;
+* `verticalcrs` (1024-32766): EPSG code of the Vertical CRS;
+  * If `GeoTIFF.UserDefined`, then `verticalcitation`, `verticaldatum` and `verticalunits` must be set;
+
+## Citation
+* `citation` (string): Description of the GeoTIFF file;
+* `geodeticcitation` (string): Description of the Geodetic CRS;
+* `projectedcitation` (string): Description of the Projected CRS;
+* `verticalcitation` (string): Description of the Vertical CRS;
+
+## User Defined CRS
+### Units
+* `geogangularunits` (1024-32766): EPSG code of angular unit for the:
+  * user defined Geographic CRS;
+  * user defined prime meridians;
+  * user defined projection parameters that are angles;
+    * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geogangularunitsize` must be set;
+* `geogazimuthunits` (1024-32766): EPSG code of angular unit for the user defined projection parameters
+  when these differ from the angular unit of `geogangularunits`;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geogangularunitsize` must be set;
+* `geoglinearunits` (1024-32766): EPSG code of length unit for the:
+  * user defined Geocentric CRS;
+  * height of user defined Geographic 3D CRS;
+  * user defined ellipsoid axes;
+    * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geoglinearunitsize` must be set;
+* `projlinearunits` (1024-32766): EPSG code of length unit for the:
+  * user defined Projected CRS;
+  * user defined projection parameters that are lengths;
+    * If `GeoTIFF.UserDefined`, then `projectedcitation` and `projlinearunitsize` must be set;
+* `verticalunits` (1024-32766): EPSG code of length unit for the user defined Vertical CRS;
+  * `GeoTIFF.UserDefined` is not supported;
+
+### Unit size
+* `geogangularunitsize` (float): Size of user defined Geographic angle with radian as base unit;
+* `geoglinearunitsize` (float): Size of user defined Geographic length with meter as base unit;
+* `projlinearunitsize` (float): Size of user defined Projected length with meter as base unit;
+
+### Geodetic Datum
+* `geodeticdatum` (1024-32766): EPSG code of Datum for the user defined Geographic CRS;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `primemeridian` and `ellipsoid` must be set;
+* `primemeridian` (1024-32766): EPSG code of Prime Meridian for the user defined Datum;
+  * If `GeoTIFF.UserDefined`, then `primemeridianlongitude` must be set;
+* `primemeridianlongitude` (float): Longitude angle relative to the international reference meridian
+  for the user defined Prime Meridian;
+* `ellipsoid` (1024-32766): EPSG code of Ellipsoid for the user defined Datum;
+  * If `GeoTIFF.UserDefined`, then `ellipsoidsemimajoraxis` and `ellipsoidsemiminoraxis` or `ellipsoidinvflattening` must be set;
+* `ellipsoidsemimajoraxis` (float): Semi-major axis of the user defined Ellipsoid;
+* `ellipsoidsemiminoraxis` (float): Semi-minor axis of the user defined Ellipsoid;
+* `ellipsoidinvflattening` (float): Inverse flattening of the user defined Ellipsoid;
+
+### Vertical Datum
+* `verticaldatum` (1024-32766): EPSG code of Datum for the user defined Vertical CRS;
+  * If `GeoTIFF.UserDefined`, then `verticalcitation` must be set;
+
+### Projection
+* `projection` (1024-32766): EPSG code of coordinate operation for the user defined Projected CRS;
+  * If `GeoTIFF.UserDefined`, then `projectedcitation`, `projmethod`, and `projlinearunits` must be set;
+* `projmethod` (1-27): GeoTIFF projection code of the user defined projection;
+  * See [Map Projection methods](https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_methods)
+    for the full list of codes;
+  * All projection parameters of the passed projection method must be set;
+
+### Projection parameters
+* `projstdparallel1` (float): First standard parallel;
+* `projstdparallel2` (float): Second standard parallel;
+* `projnatoriginlong` (float): Longitude of natural origin;
+* `projnatoriginlat` (float): Latitude of natural origin;
+* `projfalseoriginlong` (float): Longitude of false origin;
+* `projfalseoriginlat` (float): Latitude of false origin;
+* `projcenterlong` (float): Longitude of projection center;
+* `projcenterlat` (float): Latitude of projection center;
+* `projstraightvertpolelong` (float): Longitude of straight vertical pole;
+* `projazimuthangle` (float): Azimuth angle east of true north of the central line passing through the projection center; 
+* `projfalseeasting` (float): False easting;
+* `projfalsenorthing` (float): False northing;
+* `projfalseorigineasting` (float): Easting coordinate of false origin;
+* `projfalseoriginnorthing` (float): Northing coordinate of false origin;
+* `projcentereasting` (float): Easting coordinate of projection center;
+* `projcenternorthing` (float): Northing coordinate of projection center;
+* `projscaleatnatorigin` (float): Scale of natural origin;
+* `projscaleatcenter` (float): Scale of projection center;
+
+See [Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements)
+section of the GeoTIFF specification for more details.
+"""
 function metadata(;
   version=1,
   revision=1,
@@ -240,7 +449,7 @@ function metadata(;
     end
   end
 
-  # GeoTIFF Configuration GeoKeys
+  # GeoTIFF Configuration
   geokeyshort!(GTRasterTypeGeoKey, rastertype)
   geokeyshort!(GTModelTypeGeoKey, modeltype)
 
