@@ -60,8 +60,6 @@ or channel arrays into new GeoTIFF files with given metadata:
 ```julia
 julia> using Colors
 
-julia> GeoTIFF.save("geotiff.tiff", geotiff)
-
 julia> colors = rand(Gray{Float64}, 100, 100);
 
 julia> GeoTIFF.save("colors.tiff", colors) # default metadata
