@@ -124,6 +124,10 @@ const Projected2D = UInt16(1)
     GeoTIFF.Geographic2D
 
 Geographic 2D CRS model type.
+
+### Notes
+
+* GeoTIFF specification uses the term Geographic2D to mean geodetic latlon coordinates;
 """
 const Geographic2D = UInt16(2)
 
@@ -131,5 +135,9 @@ const Geographic2D = UInt16(2)
     GeoTIFF.Geocentric3D
 
 Geocentric 3D CRS model type.
+
+### Notes
+
+* GeoTIFF specification uses the term Geocentric3D to mean Cartesian 3D coordinates;
 """
 const Geocentric3D = UInt16(3)
