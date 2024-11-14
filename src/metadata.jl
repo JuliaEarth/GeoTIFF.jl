@@ -266,35 +266,109 @@ Construct a GeoTIFF metadata with passed parameter values.
   * `1`: GeoTIFF 1.1 version;
 
 ## Raster to Model transformation
-* `pixelscale` (3-tuple of float): `(x, y, z)` pixel scale parameters (default to `nothing`);
+* `pixelscale` (3-tuple of float): `(x, y, z)` pixel scale parameters;
   * Must be passed together with `tiepoint`;
-* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters (default to `nothing`);
+* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters;
 * `transformation` (matrix of float, vector of float): `(A, b)` affine parameters (default to `A` as identity matrix and `b` as vector of zeros
-  if if no transformation is passed);
+  if no transformation is passed);
   * Should not be passed if `pixelscale` and `tiepoint` have been passed;
 
-## GeoKeys
+All parameters in the following sections can receive the values
+`GeoTIFF.Undefined` and `GeoTIFF.UserDefined` in addition to the allowed values, 
+except the string and float parameters.
 
-All of the parameters of this section can receive the values 
-`GeoTIFF.Undefined` and `GeoTIFF.UserDefined` in addition allowed values.
-
-### GeoTIFF Configuration
-
-* `rastertype` (`GeoTIFF.PixelIsArea` | `GeoTIFF.PixelIsPoint`): raster type of the GeoTIFF (default to `nothing`);
-* `modeltype` (`GeoTIFF.Projected2D` | `GeoTIFF.Geographic2D` | `GeoTIFF.Geocentric3D`): model type of the GeoTIFF (default to `nothing`);
+## GeoTIFF Configuration
+* `rastertype` (`GeoTIFF.PixelIsArea` | `GeoTIFF.PixelIsPoint`): raster type of the GeoTIFF;
+* `modeltype` (`GeoTIFF.Projected2D` | `GeoTIFF.Geographic2D` | `GeoTIFF.Geocentric3D`): model type of the GeoTIFF;
   * If `GeoTIFF.Projected2D`, then `projectcrs` must be passed;
   * If `GeoTIFF.Geographic2D` or `GeoTIFF.Geocentric3D`, then `geodeticcrs` must be passed;
 
-### Model CRS
-* `projectcrs` (1024-32766): EPSG code of the Projected CRS (default to `nothing`);
+## Model CRS
+* `projectcrs` (1024-32766): EPSG code of the Projected CRS;
   * If `GeoTIFF.UserDefined`, then `projectedcitation`, `geodeticcrs` and `projection` must be passed;
-* `geodeticcrs` (1024-32766): EPSG code of the Geographic or Geocentric CRS (default to `nothing`);
-  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `geodeticcitation` and `geogangularunits` (for Geographic CRS) 
+* `geodeticcrs` (1024-32766): EPSG code of the Geographic or Geocentric CRS;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `geodeticdatum` and `geogangularunits` (for Geographic CRS) 
   or `geoglinearunits` (for Geocentric CRS) must be passed;
-* `verticalcrs` (1024-32766): EPSG code of the Vertical CRS (default to `nothing`);
+* `verticalcrs` (1024-32766): EPSG code of the Vertical CRS;
+  * If `GeoTIFF.UserDefined`, then `verticalcitation`, `verticaldatum` and `verticalunits` must be passed;
 
-### Citation
-* 
+## Citation
+* `citation` (string): Description of the GeoTIFF file;
+* `geodeticcitation` (string): Description of the Geodetic CRS;
+* `projectedcitation` (string): Description of the Projected CRS;
+* `verticalcitation` (string): Description of the Vertical CRS;
+
+## User Defined CRS
+### Units
+* `geogangularunits` (1024-32766): EPSG code of angular unit for the:
+  * user defined Geographic CRS;
+  * user defined prime meridians;
+  * user defined projection parameters that are angles;
+    * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geogangularunitsize` must be passed;
+* `geogazimuthunits` (1024-32766): EPSG code of angular unit for the user defined projection parameters
+  when these differ from the angular unit of `geogangularunits`;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geogangularunitsize` must be passed;
+* `geoglinearunits` (1024-32766): EPSG code of length unit for the:
+  * user defined Geocentric CRS;
+  * height of user defined Geographic 3D CRS;
+  * user defined ellipsoid axes;
+    * If `GeoTIFF.UserDefined`, then `geodeticcitation` and `geoglinearunitsize` must be passed;
+* `projlinearunits` (1024-32766): EPSG code of length unit for the:
+  * user defined Projected CRS;
+  * user defined projection parameters that are lengths;
+    * If `GeoTIFF.UserDefined`, then `projectedcitation` and `projlinearunitsize` must be passed;
+* `verticalunits` (1024-32766): EPSG code of length unit for the user defined Vertical CRS;
+  * `GeoTIFF.UserDefined` is not supported;
+
+### Unit size
+* `geogangularunitsize` (float): Size of user defined Geographic angle with radian as base unit;
+* `geoglinearunitsize` (float): Size of user defined Geographic length with meter as base unit;
+* `projlinearunitsize` (float): Size of user defined Projected length with meter as base unit;
+
+### Geodetic Datum
+* `geodeticdatum` (1024-32766): EPSG code of Datum for the user defined Geographic CRS;
+  * If `GeoTIFF.UserDefined`, then `geodeticcitation`, `primemeridian` and `ellipsoid` must be passed;
+* `primemeridian` (1024-32766): EPSG code of Prime Meridian for the user defined Datum;
+  * If `GeoTIFF.UserDefined`, then `primemeridianlongitude` must be passed;
+* `primemeridianlongitude` (float): Longitude angle relative to the international reference meridian
+  for the user defined Prime Meridian;
+* `ellipsoid` (1024-32766): EPSG code of Ellipsoid for the user defined Datum;
+  * If `GeoTIFF.UserDefined`, then `ellipsoidsemimajoraxis` and `ellipsoidsemiminoraxis` or `ellipsoidinvflattening` must be passed;
+* `ellipsoidsemimajoraxis` (float): Semi-major axis of the user defined Ellipsoid;
+* `ellipsoidsemiminoraxis` (float): Semi-minor axis of the user defined Ellipsoid;
+* `ellipsoidinvflattening` (float): Inverse flattening of the user defined Ellipsoid;
+
+### Vertical Datum
+* `verticaldatum` (1024-32766): EPSG code of Datum for the user defined Vertical CRS;
+  * If `GeoTIFF.UserDefined`, then `verticalcitation` must be passed;
+
+### Projection
+* `projection` (1024-32766): EPSG code of coordinate operation for the user defined Projected CRS;
+  * If `GeoTIFF.UserDefined`, then `projectedcitation`, `projmethod`, and `projlinearunits` must be passed;
+* `projmethod` (1-27): GeoTIFF projection code of the user defined projection;
+  * See [Map Projection methods](https://docs.ogc.org/is/19-008r4/19-008r4.html#_map_projection_methods)
+    for the full list of codes;
+  * All projection parameters of the passed projection method must be passed;
+
+### Projection parameters
+* `projstdparallel1` (float): First standard parallel;
+* `projstdparallel2` (float): Second standard parallel;
+* `projnatoriginlong` (float): Longitude of natural origin;
+* `projnatoriginlat` (float): Latitude of natural origin;
+* `projfalseoriginlong` (float): Longitude of false origin;
+* `projfalseoriginlat` (float): Latitude of false origin;
+* `projcenterlong` (float): Longitude of projection center;
+* `projcenterlat` (float): Latitude of projection center;
+* `projstraightvertpolelong` (float): Longitude of straight vertical pole;
+* `projazimuthangle` (float): Azimuth angle east of true north of the central line passing through the projection center; 
+* `projfalseeasting` (float): False easting;
+* `projfalsenorthing` (float): False northing;
+* `projfalseorigineasting` (float): Easting coordinate of false origin;
+* `projfalseoriginnorthing` (float): Northing coordinate of false origin;
+* `projcentereasting` (float): Easting coordinate of projection center;
+* `projcenternorthing` (float): Northing coordinate of projection center;
+* `projscaleatnatorigin` (float): Scale of natural origin;
+* `projscaleatcenter` (float): Scale of of projection center;
 """
 function metadata(;
   version=1,
