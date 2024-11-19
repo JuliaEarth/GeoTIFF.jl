@@ -68,6 +68,21 @@ savedir = mktempdir()
     geotiff[1, 1] = color
     @test geotiff[1, 1] == color
     @test IndexStyle(geotiff) === IndexCartesian()
+
+    # multi-channel image
+    file = joinpath(savedir, "multi.tiff")
+    channel1 = rand(10, 10)
+    channel2 = rand(10, 10)
+    channel3 = rand(10, 10)
+    channel4 = rand(10, 10)
+    GeoTIFF.save(file, channel1, channel2, channel3, channel4)
+    geotiff = GeoTIFF.load(file)
+    @test eltype(geotiff) <: TiffImages.WidePixel
+    @test GeoTIFF.nchannels(geotiff) == 4
+    @test GeoTIFF.channel(geotiff, 1) == channel1
+    @test GeoTIFF.channel(geotiff, 2) == channel2
+    @test GeoTIFF.channel(geotiff, 3) == channel3
+    @test GeoTIFF.channel(geotiff, 4) == channel4
   end
 
   @testset "save" begin
