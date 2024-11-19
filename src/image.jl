@@ -18,16 +18,30 @@ end
 """
     GeoTIFF.tiff(geotiff)
 
-TIFF image of a `geotiff` image.
+TIFF image of the `geotiff` image.
 """
 tiff(geotiff::GeoTIFFImage) = geotiff.tiff
 
 """
     GeoTIFF.metadata(geotiff)
 
-GeoTIFF metadata of a `geotiff` image.
+GeoTIFF metadata of the `geotiff` image.
 """
 metadata(geotiff::GeoTIFFImage) = geotiff.metadata
+
+"""
+    GeoTIFF.nchannels(geotiff)
+
+Number of channels of the `geotiff` image.
+"""
+nchannels(geotiff::GeoTIFFImage) = nchannels(geotiff.tiff)
+
+"""
+    GeoTIFF.channel(geotiff, i)
+
+`i`'th channel of the `geotiff` image.
+"""
+channel(geotiff::GeoTIFFImage, i) = mappedarray(c -> channel(c, i), geotiff.tiff)
 
 # AbstractArray interface
 Base.size(geotiff::GeoTIFFImage) = size(geotiff.tiff)

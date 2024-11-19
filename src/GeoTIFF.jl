@@ -11,6 +11,7 @@ using StaticArrays: SVector, SMatrix, SA
 using FixedPointNumbers: Fixed, Normed
 
 import TiffImages
+import TiffImages: nchannels, channel
 
 include("geokeys.jl")
 include("metadata.jl")
