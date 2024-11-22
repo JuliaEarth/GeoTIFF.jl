@@ -41,10 +41,13 @@ nchannels(geotiff::GeoTIFFImage) = nchannels(geotiff.tiff)
 
 `i`'th channel of the `geotiff` image.
 """
-channel(geotiff::GeoTIFFImage, i) = mappedarray(c -> channel(c, i), geotiff.tiff)
+function channel(geotiff::GeoTIFFImage, i)
+  C = mappedarray(c -> channel(c, i), geotiff.tiff)
+  PermutedDimsArray(C, (2, 1))
+end
 
 # AbstractArray interface
-Base.size(geotiff::GeoTIFFImage) = size(geotiff.tiff)
-Base.getindex(geotiff::GeoTIFFImage, i...) = getindex(geotiff.tiff, i...)
-Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...)
+Base.size(geotiff::GeoTIFFImage) = reverse(size(geotiff.tiff))
+Base.getindex(geotiff::GeoTIFFImage, i, j) = getindex(geotiff.tiff, j, i)
+Base.setindex!(geotiff::GeoTIFFImage, v, i, j) = setindex!(geotiff.tiff, v, j, i)
 Base.IndexStyle(::Type{GeoTIFFImage{T,N,I}}) where {T,N,I} = IndexStyle(I)

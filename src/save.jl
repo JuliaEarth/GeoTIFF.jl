@@ -28,7 +28,10 @@ end
 
 Save in the file `fname` an image (array of colors) `img` with passed GeoTIFF `metadata`.
 """
-save(fname, img::AbstractArray{<:WidePixelOrColorant}; kwargs...) = save(fname, DenseTaggedImage(img); kwargs...)
+function save(fname, img::AbstractArray{<:WidePixelOrColorant}; kwargs...)
+  tiff = DenseTaggedImage(PermutedDimsArray(img, (2, 1)))
+  save(fname, tiff; kwargs...)
+end
 
 """
     GeoTIFF.save(fname, channels...; metadata=GeoTIFF.Metadata())

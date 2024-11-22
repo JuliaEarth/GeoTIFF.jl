@@ -27,6 +27,7 @@ savedir = mktempdir()
     geotiff = GeoTIFF.load(joinpath(datadir, "test.tif"))
     metadata = GeoTIFF.metadata(geotiff)
     @test eltype(geotiff) <: RGB
+    @test size(geotiff) == (100, 100)
     @test isnothing(GeoTIFF.rastertype(metadata))
     @test isnothing(GeoTIFF.modeltype(metadata))
     @test isnothing(GeoTIFF.epsgcode(metadata))
@@ -36,6 +37,7 @@ savedir = mktempdir()
     geotiff = GeoTIFF.load(joinpath(datadir, "test_gray.tif"))
     metadata = GeoTIFF.metadata(geotiff)
     @test eltype(geotiff) <: Gray
+    @test size(geotiff) == (108, 108)
     @test isnothing(GeoTIFF.rastertype(metadata))
     @test isnothing(GeoTIFF.modeltype(metadata))
     @test isnothing(GeoTIFF.epsgcode(metadata))
@@ -46,11 +48,25 @@ savedir = mktempdir()
     geotiff = GeoTIFF.load(joinpath(datadir, "utm.tif"))
     metadata = GeoTIFF.metadata(geotiff)
     @test eltype(geotiff) <: RGB
+    @test size(geotiff) == (100, 100)
     @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsArea
     @test GeoTIFF.modeltype(metadata) == GeoTIFF.Projected2D
     @test GeoTIFF.epsgcode(metadata) == 32617
     A = [121.52985600000001 0.0; 0.0 -164.762688]
     b = [688258.223819, 4.555765966137e6]
+    @test GeoTIFF.affineparams2D(metadata) == (A, b)
+
+    # GeoTIFF permutes the image by default
+    geotiff = GeoTIFF.load(joinpath(datadir, "natural_earth_1.tif"))
+    metadata = GeoTIFF.metadata(geotiff)
+    @test eltype(geotiff) <: RGB
+    @test size(geotiff) == (162, 81)
+    @test size(geotiff) == reverse(size(GeoTIFF.tiff(geotiff)))
+    @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsArea
+    @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
+    @test GeoTIFF.epsgcode(metadata) == 4326
+    A = [2.222222222222001 0.0; 0.0 -2.222222222222001]
+    b = [-180.0, 90.0]
     @test GeoTIFF.affineparams2D(metadata) == (A, b)
   end
 
