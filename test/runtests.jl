@@ -1,6 +1,7 @@
 using GeoTIFF
 using TiffImages
 using ColorTypes
+using StaticArrays
 using FixedPointNumbers
 using Test
 
@@ -32,7 +33,11 @@ savedir = mktempdir()
     @test isnothing(GeoTIFF.modeltype(metadata))
     @test isnothing(GeoTIFF.epsgcode(metadata))
     @test GeoTIFF.affineparams2D(metadata) == (A2D, b2D)
+    @test GeoTIFF.affineparams2D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams2D(metadata)[2] isa SVector
     @test GeoTIFF.affineparams3D(metadata) == (A3D, b3D)
+    @test GeoTIFF.affineparams3D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams3D(metadata)[2] isa SVector
 
     geotiff = GeoTIFF.load(joinpath(datadir, "test_gray.tif"))
     metadata = GeoTIFF.metadata(geotiff)
@@ -42,7 +47,11 @@ savedir = mktempdir()
     @test isnothing(GeoTIFF.modeltype(metadata))
     @test isnothing(GeoTIFF.epsgcode(metadata))
     @test GeoTIFF.affineparams2D(metadata) == (A2D, b2D)
+    @test GeoTIFF.affineparams2D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams2D(metadata)[2] isa SVector
     @test GeoTIFF.affineparams3D(metadata) == (A3D, b3D)
+    @test GeoTIFF.affineparams3D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams3D(metadata)[2] isa SVector
 
     # tiff files with metadata
     geotiff = GeoTIFF.load(joinpath(datadir, "utm.tif"))
@@ -55,6 +64,8 @@ savedir = mktempdir()
     A = [121.52985600000001 0.0; 0.0 -164.762688]
     b = [688258.223819, 4.555765966137e6]
     @test GeoTIFF.affineparams2D(metadata) == (A, b)
+    @test GeoTIFF.affineparams2D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams2D(metadata)[2] isa SVector
 
     # GeoTIFF format swaps axis order
     geotiff = GeoTIFF.load(joinpath(datadir, "natural_earth_1.tif"))
@@ -68,6 +79,8 @@ savedir = mktempdir()
     A = [2.222222222222001 0.0; 0.0 -2.222222222222001]
     b = [-180.0, 90.0]
     @test GeoTIFF.affineparams2D(metadata) == (A, b)
+    @test GeoTIFF.affineparams2D(metadata)[1] isa SMatrix
+    @test GeoTIFF.affineparams2D(metadata)[2] isa SVector
   end
 
   @testset "GeoTIFFImage" begin
@@ -138,6 +151,19 @@ savedir = mktempdir()
 
     file1 = joinpath(datadir, "utm.tif")
     file2 = joinpath(savedir, "utm.tif")
+    geotiff1 = GeoTIFF.load(file1)
+    GeoTIFF.save(file2, geotiff1)
+    geotiff2 = GeoTIFF.load(file2)
+    metadata1 = GeoTIFF.metadata(geotiff1)
+    metadata2 = GeoTIFF.metadata(geotiff2)
+    @test eltype(geotiff2) === eltype(geotiff1)
+    @test GeoTIFF.rastertype(metadata2) === GeoTIFF.rastertype(metadata1)
+    @test GeoTIFF.modeltype(metadata2) === GeoTIFF.modeltype(metadata1)
+    @test GeoTIFF.epsgcode(metadata2) === GeoTIFF.epsgcode(metadata1)
+    @test GeoTIFF.affineparams2D(metadata2) === GeoTIFF.affineparams2D(metadata1)
+
+    file1 = joinpath(datadir, "natural_earth_1.tif")
+    file2 = joinpath(savedir, "natural_earth_1.tif")
     geotiff1 = GeoTIFF.load(file1)
     GeoTIFF.save(file2, geotiff1)
     geotiff2 = GeoTIFF.load(file2)

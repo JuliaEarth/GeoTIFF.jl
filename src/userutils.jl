@@ -113,7 +113,14 @@ function affineparams2D(metadata::Metadata)
     b = SA[tx, ty]
     A, b
   elseif !isnothing(transformation)
-    transformation.A[1:2, 1:2], transformation.b[1:2]
+    Aₜ = transformation.A
+    bₜ = transformation.b
+    A = SA[
+      Aₜ[1, 1] Aₜ[1, 2]
+      Aₜ[2, 1] Aₜ[2, 2]
+    ]
+    b = SA[bₜ[1], bₜ[2]]
+    A, b
   else
     nothing
   end
