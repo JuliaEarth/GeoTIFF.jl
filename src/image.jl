@@ -7,8 +7,13 @@
 
 Image type returned by the [`GeoTIFF.load`](@ref) function.
 
-See the [`GeoTIFF.tiff`](@ref) and [`GeoTIFF.metadata`](@ref) functions
-to get the TIFF image and metadata respectively.
+See the [`GeoTIFF.metadata`](@ref) and [`GeoTIFF.image`](@ref) functions
+to get the metadata and the image with corrected axes, respectively.
+
+### Notes
+
+* The [`GeoTIFF.image`](@ref) function is necessary because 
+  the GeoTIFF format swaps the order of the image axes;
 """
 struct GeoTIFFImage{T,N,I<:AbstractTIFF{T,N}} <: AbstractArray{T,N}
   tiff::I
@@ -30,6 +35,13 @@ GeoTIFF metadata of the `geotiff` image.
 metadata(geotiff::GeoTIFFImage) = geotiff.metadata
 
 """
+    GeoTIFF.image(geotiff)
+
+Image of the `geotiff` with corrected axis.
+"""
+image(geotiff::GeoTIFFImage) = PermutedDimsArray(geotiff.tiff, (2, 1))
+
+"""
     GeoTIFF.nchannels(geotiff)
 
 Number of channels of the `geotiff` image.
@@ -41,13 +53,10 @@ nchannels(geotiff::GeoTIFFImage) = nchannels(geotiff.tiff)
 
 `i`'th channel of the `geotiff` image.
 """
-function channel(geotiff::GeoTIFFImage, i)
-  C = mappedarray(c -> channel(c, i), geotiff.tiff)
-  PermutedDimsArray(C, (2, 1))
-end
+channel(geotiff::GeoTIFFImage, i) = mappedarray(c -> channel(c, i), image(geotiff))
 
 # AbstractArray interface
-Base.size(geotiff::GeoTIFFImage) = reverse(size(geotiff.tiff))
-Base.getindex(geotiff::GeoTIFFImage, i, j) = getindex(geotiff.tiff, j, i)
-Base.setindex!(geotiff::GeoTIFFImage, v, i, j) = setindex!(geotiff.tiff, v, j, i)
+Base.size(geotiff::GeoTIFFImage) = size(geotiff.tiff)
+Base.getindex(geotiff::GeoTIFFImage, i...) = getindex(geotiff.tiff, i...)
+Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...)
 Base.IndexStyle(::Type{GeoTIFFImage{T,N,I}}) where {T,N,I} = IndexStyle(I)

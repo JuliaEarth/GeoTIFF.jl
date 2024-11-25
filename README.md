@@ -39,6 +39,19 @@ julia> metadata = GeoTIFF.metadata(geotiff)
 GeoTIFF.Metadata(...)
 ```
 
+And use the `GeoTIFF.image` function to get the image with corrected axes:
+
+```julia
+julia> GeoTIFF.image(geotiff)
+100×100 PermutedDimsArray(::TiffImages.DenseTaggedImage{...}, (2, 1)) with eltype RGB{N0f16}:
+ RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  …  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)
+ RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)     RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)
+ RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)     RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)
+ ⋮                                                                               ⋱                                          
+ RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)     RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)
+ RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)     RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)  RGB(1.0, 1.0, 1.0)
+```
+
 GeoTIFF.jl defines several utilities to easily retrieve metadata information:
 
 ```julia

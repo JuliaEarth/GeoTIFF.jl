@@ -56,12 +56,12 @@ savedir = mktempdir()
     b = [688258.223819, 4.555765966137e6]
     @test GeoTIFF.affineparams2D(metadata) == (A, b)
 
-    # GeoTIFF permutes the image by default
+    # GeoTIFF format swaps axis order
     geotiff = GeoTIFF.load(joinpath(datadir, "natural_earth_1.tif"))
     metadata = GeoTIFF.metadata(geotiff)
     @test eltype(geotiff) <: RGB
-    @test size(geotiff) == (162, 81)
-    @test size(geotiff) == reverse(size(GeoTIFF.tiff(geotiff)))
+    @test size(geotiff) == (81, 162)
+    @test size(GeoTIFF.image(geotiff)) == (162, 81)
     @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsArea
     @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
     @test GeoTIFF.epsgcode(metadata) == 4326
@@ -84,6 +84,13 @@ savedir = mktempdir()
     geotiff[1, 1] = color
     @test geotiff[1, 1] == color
     @test IndexStyle(geotiff) === IndexCartesian()
+
+    # image function
+    geotiff = GeoTIFF.load(joinpath(datadir, "natural_earth_1.tif"))
+    img = GeoTIFF.image(geotiff)
+    @test size(img) == reverse(size(geotiff))
+    @test eltype(img) === eltype(geotiff)
+    @test img == permutedims(geotiff, (2, 1))
 
     # multi-channel image
     file = joinpath(savedir, "multi.tiff")
