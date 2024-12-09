@@ -15,17 +15,24 @@ The keyword arguments are forward to the `TiffImages.load` function.
   * [`ModelTransformation`](@ref) with `A` as identity matrix and `b` as vector of zeros.
 """
 function load(fname; kwargs...)
+  geotiff(img, ifd) = GeoTIFFImage(img, _getmetadata(ifd))
   tiff = TiffImages.load(fname; kwargs...)
-  metadata = _getmetadata(tiff)
-  GeoTIFFImage(tiff, metadata)
+  ifds = TiffImages.ifds(tiff)
+  if tiff isa StridedTaggedImage
+    GeoTIFFImages(geotiff.(tiff, ifds))
+  elseif ndims(tiff) == 3
+    imgs = eachslice(tiff, dims=3)
+    GeoTIFFImages(geotiff.(imgs, ifds))
+  else
+    geotiff(tiff, ifds)
+  end
 end
 
 # -----------------
 # HELPER FUNCTIONS
 # -----------------
 
-function _getmetadata(tiff)
-  ifd = TiffImages.ifds(tiff)
+function _getmetadata(ifd)
   geokeydirectory = _gettag(ifd, GeoKeyDirectoryTag, GeoKeyDirectory)
   geodoubleparams = _gettag(ifd, GeoDoubleParamsTag, GeoDoubleParams)
   geoasciiparams = _gettag(ifd, GeoAsciiParamsTag, GeoAsciiParams)
