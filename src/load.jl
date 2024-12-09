@@ -16,16 +16,22 @@ The keyword arguments are forward to the `TiffImages.load` function.
 """
 function load(fname; kwargs...)
   tiff = TiffImages.load(fname; kwargs...)
-  metadata = _getmetadata(tiff)
-  GeoTIFFImage(tiff, metadata)
+  ifds = TiffImages.ifds(tiff)
+  metadata = ifds isa IFD ? _getmetadata(ifds) : _getmetadata.(ifds)
+  if tiff isa StridedTaggedImage
+    StridedGeoTIFF(tiff, metadata)
+  elseif ndims(tiff) == 3
+    SlicedGeoTIFF(tiff, metadata)
+  else
+    GeoTIFFImage(tiff, metadata)
+  end
 end
 
 # -----------------
 # HELPER FUNCTIONS
 # -----------------
 
-function _getmetadata(tiff)
-  ifd = TiffImages.ifds(tiff)
+function _getmetadata(ifd)
   geokeydirectory = _gettag(ifd, GeoKeyDirectoryTag, GeoKeyDirectory)
   geodoubleparams = _gettag(ifd, GeoDoubleParamsTag, GeoDoubleParams)
   geoasciiparams = _gettag(ifd, GeoAsciiParamsTag, GeoAsciiParams)

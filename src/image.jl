@@ -15,7 +15,7 @@ to get the metadata and the image with corrected axes, respectively.
 * The [`GeoTIFF.image`](@ref) function is necessary because 
   the GeoTIFF format swaps the order of the image axes;
 """
-struct GeoTIFFImage{T,N,I<:AbstractTIFF{T,N}} <: AbstractArray{T,N}
+struct GeoTIFFImage{T,I<:AbstractMatrix{T}} <: AbstractMatrix{T}
   tiff::I
   metadata::Metadata
 end
@@ -59,4 +59,36 @@ channel(geotiff::GeoTIFFImage, i) = mappedarray(c -> channel(c, i), image(geotif
 Base.size(geotiff::GeoTIFFImage) = size(geotiff.tiff)
 Base.getindex(geotiff::GeoTIFFImage, i...) = getindex(geotiff.tiff, i...)
 Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...)
-Base.IndexStyle(::Type{GeoTIFFImage{T,N,I}}) where {T,N,I} = IndexStyle(I)
+Base.IndexStyle(::Type{GeoTIFFImage{T,I}}) where {T,I} = IndexStyle(I)
+
+abstract type MultiGeoTIFF end
+
+function getgeotiff end
+
+function ngeotiffs end
+
+# Iterator interface
+Base.length(geotiff::MultiGeoTIFF) = ngeotiffs(geotiff)
+Base.iterate(geotiff::MultiGeoTIFF, state=1) =
+  state > length(geotiff) ? nothing : (getgeotiff(geotiff, state), state + 1)
+
+# Indexing interface
+Base.getindex(geotiff::MultiGeoTIFF, i) = getgeotiff(geotiff, i)
+Base.firstindex(geotiff::MultiGeoTIFF) = 1
+Base.lastindex(geotiff::MultiGeoTIFF) = ngeotiffs(geotiff)
+
+struct StridedGeoTIFF{I<:StridedTaggedImage} <: MultiGeoTIFF
+  tiff::I
+  metadata::Vector{Metadata}
+end
+
+ngeotiffs(geotiff::StridedGeoTIFF) = length(geotiff.tiff)
+getgeotiff(geotiff::StridedGeoTIFF, i) = GeoTIFFImage(geotiff.tiff[i], geotiff.metadata[i])
+
+struct SlicedGeoTIFF{T,I<:AbstractTIFF{T,3}} <: MultiGeoTIFF
+  tiff::I
+  metadata::Vector{Metadata}
+end
+
+ngeotiffs(geotiff::SlicedGeoTIFF) = size(geotiff.tiff, 3)
+getgeotiff(geotiff::SlicedGeoTIFF, i) = GeoTIFFImage(@view(geotiff.tiff[:, :, i]), geotiff.metadata[i])
