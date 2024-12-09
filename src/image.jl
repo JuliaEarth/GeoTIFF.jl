@@ -15,7 +15,7 @@ to get the metadata and the image with corrected axes, respectively.
 * The [`GeoTIFF.image`](@ref) function is necessary because 
   the GeoTIFF format swaps the order of the image axes;
 """
-struct GeoTIFFImage{T,N,I<:AbstractTIFF{T,N}} <: AbstractArray{T,N}
+struct GeoTIFFImage{T,I<:AbstractMatrix{T}} <: AbstractMatrix{T}
   tiff::I
   metadata::Metadata
 end
@@ -59,4 +59,11 @@ channel(geotiff::GeoTIFFImage, i) = mappedarray(c -> channel(c, i), image(geotif
 Base.size(geotiff::GeoTIFFImage) = size(geotiff.tiff)
 Base.getindex(geotiff::GeoTIFFImage, i...) = getindex(geotiff.tiff, i...)
 Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...)
-Base.IndexStyle(::Type{GeoTIFFImage{T,N,I}}) where {T,N,I} = IndexStyle(I)
+Base.IndexStyle(::Type{GeoTIFFImage{T,I}}) where {T,I} = IndexStyle(I)
+
+struct GeoTIFFImages{I<:GeoTIFFImage} <: AbstractVector{I}
+  geotiffs::Vector{I}
+end
+
+Base.size(geotiff::GeoTIFFImages) = size(geotiff.geotiffs)
+Base.getindex(geotiff::GeoTIFFImages, i) = getindex(geotiff.geotiffs, i)
