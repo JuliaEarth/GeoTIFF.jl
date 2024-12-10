@@ -121,6 +121,67 @@ savedir = mktempdir()
     @test GeoTIFF.channel(geotiff, 4) == channel4
   end
 
+  @testset "GeoTIFFImageIterator" begin
+    # the "test3D.tif" is a file with random data created using TiffImages.jl
+    geotiffitr = GeoTIFF.load(joinpath(datadir, "test3D.tif"))
+    @test geotiffitr isa GeoTIFF.GeoTIFFImageIterator
+    @test length(geotiffitr) == 2
+    geotiff1, state1 = iterate(geotiffitr)
+    geotiff2, state2 = iterate(geotiffitr, state1)
+    @test isnothing(iterate(geotiffitr, state2))
+
+    metadata = GeoTIFF.metadata(geotiff1)
+    @test eltype(geotiff1) <: Gray
+    @test size(geotiff1) == (50, 50)
+    @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsArea
+    @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
+    @test GeoTIFF.epsgcode(metadata) == 4326
+    A = [7.2 0.0; 0.0 -3.6]
+    b = [-180.0, 90.0]
+    @test GeoTIFF.affineparams2D(metadata) == (A, b)
+
+    metadata = GeoTIFF.metadata(geotiff2)
+    @test eltype(geotiff2) <: Gray
+    @test size(geotiff2) == (50, 50)
+    @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsArea
+    @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
+    @test GeoTIFF.epsgcode(metadata) == 4326
+    A = [7.2 0.0; 0.0 -3.6]
+    b = [-180.0, 90.0]
+    @test GeoTIFF.affineparams2D(metadata) == (A, b)
+
+    # the "ca_nrc_CRD27_00.tif" file is from PROJ CDN
+    # link: https://cdn.proj.org/ca_nrc_CRD27_00.tif
+    geotiffitr = GeoTIFF.load(joinpath(datadir, "ca_nrc_CRD27_00.tif"))
+    @test geotiffitr isa GeoTIFF.GeoTIFFImageIterator
+    @test length(geotiffitr) == 2
+    geotiff1, state1 = iterate(geotiffitr)
+    geotiff2, state2 = iterate(geotiffitr, state1)
+    @test isnothing(iterate(geotiffitr, state2))
+
+    metadata = GeoTIFF.metadata(geotiff1)
+    @test eltype(geotiff1) <: TiffImages.WidePixel
+    @test size(geotiff1) == (46, 91)
+    @test size(GeoTIFF.image(geotiff1)) == (91, 46)
+    @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsPoint
+    @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
+    @test GeoTIFF.epsgcode(metadata) == 4267
+    A = [0.016666666666666666 0.0; 0.0 -0.016666666666666666]
+    b = [-124.5, 49.0]
+    @test GeoTIFF.affineparams2D(metadata) == (A, b)
+
+    metadata = GeoTIFF.metadata(geotiff2)
+    @test eltype(geotiff2) <: TiffImages.WidePixel
+    @test size(geotiff2) == (73, 69)
+    @test size(GeoTIFF.image(geotiff2)) == (69, 73)
+    @test GeoTIFF.rastertype(metadata) == GeoTIFF.PixelIsPoint
+    @test GeoTIFF.modeltype(metadata) == GeoTIFF.Geographic2D
+    @test GeoTIFF.epsgcode(metadata) == 4267
+    A = [0.004166666666666667 0.0; 0.0 -0.004166666666666667]
+    b = [-123.53333333333333, 48.7]
+    @test GeoTIFF.affineparams2D(metadata) == (A, b)
+  end
+
   @testset "save" begin
     # saving geotiffs
     file1 = joinpath(datadir, "test.tif")

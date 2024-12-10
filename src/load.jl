@@ -6,7 +6,10 @@
     GeoTIFF.load(fname; kwargs...)
 
 Load a GeoTIFF file returning an image with the processed GeoTIFF metadata.
+If the file contains more than one image, an iterator of images will be returned.
 The keyword arguments are forward to the `TiffImages.load` function.
+
+See also [`GeoTIFF.GeoTIFFImage`](@ref), [`GeoTIFF.GeoTIFFImageIterator`](@ref).
 
 ### Notes
 
@@ -16,16 +19,23 @@ The keyword arguments are forward to the `TiffImages.load` function.
 """
 function load(fname; kwargs...)
   tiff = TiffImages.load(fname; kwargs...)
-  metadata = _getmetadata(tiff)
-  GeoTIFFImage(tiff, metadata)
+  ifds = TiffImages.ifds(tiff)
+  metadata = ifds isa IFD ? _getmetadata(ifds) : (_getmetadata(ifd) for ifd in ifds)
+  if tiff isa StridedTaggedImage
+    GeoTIFFImageIterator(tiff, metadata)
+  elseif ndims(tiff) == 3
+    imgs = eachslice(tiff, dims=3)
+    GeoTIFFImageIterator(imgs, metadata)
+  else
+    GeoTIFFImage(tiff, metadata)
+  end
 end
 
 # -----------------
 # HELPER FUNCTIONS
 # -----------------
 
-function _getmetadata(tiff)
-  ifd = TiffImages.ifds(tiff)
+function _getmetadata(ifd)
   geokeydirectory = _gettag(ifd, GeoKeyDirectoryTag, GeoKeyDirectory)
   geodoubleparams = _gettag(ifd, GeoDoubleParamsTag, GeoDoubleParams)
   geoasciiparams = _gettag(ifd, GeoAsciiParamsTag, GeoAsciiParams)
