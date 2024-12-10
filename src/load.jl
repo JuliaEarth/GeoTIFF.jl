@@ -6,7 +6,10 @@
     GeoTIFF.load(fname; kwargs...)
 
 Load a GeoTIFF file returning an image with the processed GeoTIFF metadata.
+If the file contains more than one image, an iterator of images will be returned.
 The keyword arguments are forward to the `TiffImages.load` function.
+
+See also [`GeoTIFF.GeoTIFFImage`](@ref), [`GeoTIFF.GeoTIFFIterator`](@ref).
 
 ### Notes
 

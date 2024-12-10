@@ -61,6 +61,11 @@ Base.getindex(geotiff::GeoTIFFImage, i...) = getindex(geotiff.tiff, i...)
 Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...)
 Base.IndexStyle(::Type{GeoTIFFImage{T,I}}) where {T,I} = IndexStyle(I)
 
+"""
+    GeoTIFF.GeoTIFFIterator 
+
+Iterator of [`GeoTIFF.GeoTIFFImage`](@ref) returned by the [`GeoTIFF.load`](@ref) function.
+"""
 struct GeoTIFFIterator{I,M}
   tiffs::I
   metadata::M
