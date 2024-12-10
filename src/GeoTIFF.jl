@@ -4,7 +4,8 @@
 
 module GeoTIFF
 
-using TiffImages: AbstractTIFF, DenseTaggedImage, StridedTaggedImage, IFD, WidePixel
+using TiffImages: AbstractTIFF, IFD, WidePixel
+using TiffImages: DenseTaggedImage, StridedTaggedImage
 using ColorTypes: Colorant, Gray
 using MappedArrays: mappedarray
 using StaticArrays: SVector, SMatrix, SA
