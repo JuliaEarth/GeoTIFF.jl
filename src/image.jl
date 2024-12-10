@@ -62,24 +62,24 @@ Base.setindex!(geotiff::GeoTIFFImage, v, i...) = setindex!(geotiff.tiff, v, i...
 Base.IndexStyle(::Type{GeoTIFFImage{T,I}}) where {T,I} = IndexStyle(I)
 
 """
-    GeoTIFF.GeoTIFFIterator 
+    GeoTIFF.GeoTIFFImageIterator 
 
 Iterator of [`GeoTIFF.GeoTIFFImage`](@ref) returned by the [`GeoTIFF.load`](@ref) function.
 """
-struct GeoTIFFIterator{I,M}
+struct GeoTIFFImageIterator{I,M}
   tiffs::I
   metadata::M
 end
 
-Base.length(geotiffs::GeoTIFFIterator) = length(geotiffs.tiffs)
+Base.length(geotiffs::GeoTIFFImageIterator) = length(geotiffs.tiffs)
 
-function Base.iterate(geotiffs::GeoTIFFIterator)
+function Base.iterate(geotiffs::GeoTIFFImageIterator)
   tiff, stateₜ = iterate(geotiffs.tiffs)
   metadata, stateₘ = iterate(geotiffs.metadata)
   GeoTIFFImage(tiff, metadata), (stateₜ, stateₘ)
 end
 
-function Base.iterate(geotiffs::GeoTIFFIterator, (stateₜ, stateₘ))
+function Base.iterate(geotiffs::GeoTIFFImageIterator, (stateₜ, stateₘ))
   valueₜ = iterate(geotiffs.tiffs, stateₜ)
   valueₘ = iterate(geotiffs.metadata, stateₘ)
   if !isnothing(valueₜ) && !isnothing(valueₘ)

@@ -121,9 +121,10 @@ savedir = mktempdir()
     @test GeoTIFF.channel(geotiff, 4) == channel4
   end
 
-  @testset "GeoTIFFIterator" begin
+  @testset "GeoTIFFImageIterator" begin
     # the "test3D.tif" is a file with random data created using TiffImages.jl
     geotiffitr = GeoTIFF.load(joinpath(datadir, "test3D.tif"))
+    @test geotiffitr isa GeoTIFF.GeoTIFFImageIterator
     @test length(geotiffitr) == 2
     geotiff1, state1 = iterate(geotiffitr)
     geotiff2, state2 = iterate(geotiffitr, state1)
@@ -152,6 +153,7 @@ savedir = mktempdir()
     # the "ca_nrc_CRD27_00.tif" file is from PROJ CDN
     # link: https://cdn.proj.org/ca_nrc_CRD27_00.tif
     geotiffitr = GeoTIFF.load(joinpath(datadir, "ca_nrc_CRD27_00.tif"))
+    @test geotiffitr isa GeoTIFF.GeoTIFFImageIterator
     @test length(geotiffitr) == 2
     geotiff1, state1 = iterate(geotiffitr)
     geotiff2, state2 = iterate(geotiffitr, state1)
