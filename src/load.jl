@@ -3,11 +3,14 @@
 # -----------------------------------------------------------------
 
 """
-    GeoTIFF.load(fname; kwargs...)
+    GeoTIFF.load(fname; verbose=true, mmap=false, lazyio=false)
 
 Load a GeoTIFF file returning an image with the processed GeoTIFF metadata.
 If the file contains more than one image, an iterator of images will be returned.
-The keyword arguments are forward to the `TiffImages.load` function.
+
+Use the `verbose` option to show or hide the loading bar,
+and use the `mmap` or `lazyio` option to enable memory-mapping or lazy I/O.
+For more details, check the TiffImages.jl documentation.
 
 See also [`GeoTIFF.GeoTIFFImage`](@ref), [`GeoTIFF.GeoTIFFImageIterator`](@ref).
 
