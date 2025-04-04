@@ -47,18 +47,14 @@ function _getmetadata(ifd)
   modeltransformation = _gettag(ifd, ModelTransformationTag, ModelTransformation)
   # support tiff files without metadata
   geokeydirectory′ = isnothing(geokeydirectory) ? GeoKeyDirectory() : geokeydirectory
-  modeltransformation′ = if isnothing(modelpixelscale) && isnothing(modeltiepoint) && isnothing(modeltransformation)
-    ModelTransformation()
-  else
-    modeltransformation
-  end
+  modelmodeltiepoint′ = isnothing(modeltiepoint) ? ModelTiepoint() : modeltiepoint
   Metadata(;
     geokeydirectory=geokeydirectory′,
     geodoubleparams,
     geoasciiparams,
+    modeltiepoint=modelmodeltiepoint′,
     modelpixelscale,
-    modeltiepoint,
-    modeltransformation=modeltransformation′
+    modeltransformation
   )
 end
 
