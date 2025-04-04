@@ -101,29 +101,9 @@ end
 params(geoasciiparams::GeoAsciiParams) = geoasciiparams.params
 
 """
-    GeoTIFF.ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
-
-The ModelPixelScale contains the scale parameters of the raster-to-model transformation.
-
-See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
-section of the GeoTIFF specification for more details.
-"""
-struct ModelPixelScale
-  x::Float64
-  y::Float64
-  z::Float64
-end
-
-ModelPixelScale(; x=1.0, y=-1.0, z=1.0) = ModelPixelScale(x, y, z)
-
-ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2], params[3])
-
-params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
-
-"""
     GeoTIFF.ModelTiepoint(; i=0.0, j=0.0, k=0.0, x=0.0, y=0.0, z=0.0)
 
-The ModelTiepoint contains the tie point parameters of the raster-to-model transformation.
+The ModelTiepoint contains the tiepoint parameters of the raster-to-model transformation.
 
 See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
 section of the GeoTIFF specification for more details.
@@ -145,6 +125,26 @@ params(modeltiepoint::ModelTiepoint) =
   [modeltiepoint.i, modeltiepoint.j, modeltiepoint.k, modeltiepoint.x, modeltiepoint.y, modeltiepoint.z]
 
 """
+    GeoTIFF.ModelPixelScale(; x=1.0, y=-1.0, z=1.0)
+
+The ModelPixelScale contains the scale parameters of the raster-to-model transformation.
+
+See [Raster to Model Coordinate Transformation Requirements](https://docs.ogc.org/is/19-008r4/19-008r4.html#_raster_to_model_coordinate_transformation_requirements)
+section of the GeoTIFF specification for more details.
+"""
+struct ModelPixelScale
+  x::Float64
+  y::Float64
+  z::Float64
+end
+
+ModelPixelScale(; x=1.0, y=-1.0, z=1.0) = ModelPixelScale(x, y, z)
+
+ModelPixelScale(params::Vector{Float64}) = ModelPixelScale(params[1], params[2], params[3])
+
+params(modelpixelscale::ModelPixelScale) = [modelpixelscale.x, modelpixelscale.y, modelpixelscale.z]
+
+"""
     GeoTIFF.ModelTransformation(; A=[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=[0.0, 0.0, 0.0])
 
 The ModelTransformation contains the affine parameters of the raster-to-model transformation.
@@ -159,7 +159,7 @@ struct ModelTransformation
   b::SVector{3,Float64}
 end
 
-function ModelTransformation(; A=_A, b=_b)
+function ModelTransformation(; A=SA[1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0], b=SA[0.0, 0.0, 0.0])
   sz = size(A)
   if !allequal(sz)
     throw(ArgumentError("`A` must be a square matrix"))
@@ -199,9 +199,9 @@ end
       geokeydirectory=GeoKeyDirectory(),
       geodoubleparams=nothing,
       geoasciiparams=nothing,
+      modeltiepoint=ModelTiepoint(),
       modelpixelscale=nothing,
-      modeltiepoint=nothing,
-      modeltransformation=ModelTransformation()
+      modeltransformation=nothing
     )
 
 Stores all GeoTIFF format metadata.
@@ -210,8 +210,8 @@ Corresponding field names in the GeoTIFF specification:
 * `geokeydirectory`: GeoKeyDirectoryTag
 * `geodoubleparams`: GeoDoubleParamsTag
 * `geoasciiparams`: GeoAsciiParamsTag
-* `modeltiepoint`: ModelPixelScaleTag
 * `modeltiepoint`: ModelTiepointTag
+* `modelpixelscale`: ModelPixelScaleTag
 * `modeltransformation`: ModelTransformationTag
 
 See [Requirements Class TIFF](https://docs.ogc.org/is/19-008r4/19-008r4.html#_requirements_class_tiff)
@@ -226,8 +226,8 @@ struct Metadata
   geokeydirectory::GeoKeyDirectory
   geodoubleparams::Union{GeoDoubleParams,Nothing}
   geoasciiparams::Union{GeoAsciiParams,Nothing}
+  modeltiepoint::ModelTiepoint
   modelpixelscale::Union{ModelPixelScale,Nothing}
-  modeltiepoint::Union{ModelTiepoint,Nothing}
   modeltransformation::Union{ModelTransformation,Nothing}
 end
 
@@ -235,23 +235,14 @@ function Metadata(;
   geokeydirectory=GeoKeyDirectory(),
   geodoubleparams=nothing,
   geoasciiparams=nothing,
+  modeltiepoint=ModelTiepoint(),
   modelpixelscale=nothing,
-  modeltiepoint=nothing,
-  modeltransformation=ModelTransformation()
+  modeltransformation=nothing
 )
-  haspixelscale = !isnothing(modelpixelscale)
-  hastiepoint = !isnothing(modeltiepoint)
-  hastransformation = !isnothing(modeltransformation)
-  if (haspixelscale || hastiepoint) && !(haspixelscale && hastiepoint)
-    throw(ArgumentError("ModelPixelScale and ModelTiepoint must be defined together"))
-  end
-  if !haspixelscale && !hastransformation
-    throw(ArgumentError("GeoTIFF requires a ModelPixelScale with ModelTiepoint or a ModelTransformation"))
-  end
-  if haspixelscale && hastransformation
+  if !isnothing(modelpixelscale) && !isnothing(modeltransformation)
     throw(ArgumentError("only one of ModelPixelScale with ModelTiepoint or ModelTransformation can be defined"))
   end
-  Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
+  Metadata(geokeydirectory, geodoubleparams, geoasciiparams, modeltiepoint, modelpixelscale, modeltransformation)
 end
 
 """
@@ -269,12 +260,10 @@ Construct a GeoTIFF metadata with parameter values.
   * `1`: GeoTIFF 1.1 version;
 
 ## Raster to Model transformation
+* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters (default to `(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`);
 * `pixelscale` (3-tuple of float): `(x, y, z)` pixel scale parameters;
-  * Must be set together with `tiepoint`;
-* `tiepoint` (6-tuple of float): `(i, j, k, x, y, z)` tiepoint parameters;
-* `transformation` (matrix of float, vector of float): `(A, b)` affine parameters (default to `A` as identity matrix and `b` as vector of zeros
-  if no transformation is passed);
-  * Should not be set if `pixelscale` and `tiepoint` have been set;
+* `transformation` (matrix of float, vector of float): `(A, b)` affine parameters;
+  * Should not be set if `pixelscale` have been set;
 
 All parameters in the following sections can receive the values
 `GeoTIFF.Undefined` and `GeoTIFF.UserDefined` in addition to the allowed values, 
@@ -380,9 +369,9 @@ function metadata(;
   version=1,
   revision=1,
   minor=1,
+  tiepoint=(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
   pixelscale=nothing,
-  tiepoint=nothing,
-  transformation=isnothing(pixelscale) && isnothing(tiepoint) ? (_A, _b) : nothing,
+  transformation=nothing,
   rastertype=nothing,
   modeltype=nothing,
   projectedcrs=nothing,
@@ -550,15 +539,3 @@ function metadata(;
 
   Metadata(; geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
 end
-
-# --------
-# HELPERS
-# --------
-
-const _A = SA[
-  1.0 0.0 0.0
-  0.0 1.0 0.0
-  0.0 0.0 1.0
-]
-
-const _b = SA[0.0, 0.0, 0.0]
