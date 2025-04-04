@@ -516,18 +516,14 @@ function metadata(;
 
   geoasciiparams = isempty(asciiparams) ? nothing : GeoAsciiParams(join(asciiparams))
 
+  i, j, k, x, y, z = tiepoint
+  modeltiepoint = ModelTiepoint(; i, j, k, x, y, z)
+
   modelpixelscale = if isnothing(pixelscale)
     nothing
   else
     x, y, z = pixelscale
     ModelPixelScale(; x, y, z)
-  end
-
-  modeltiepoint = if isnothing(tiepoint)
-    nothing
-  else
-    i, j, k, x, y, z = tiepoint
-    ModelTiepoint(; i, j, k, x, y, z)
   end
 
   modeltransformation = if isnothing(transformation)
@@ -537,5 +533,5 @@ function metadata(;
     ModelTransformation(; A, b)
   end
 
-  Metadata(; geokeydirectory, geodoubleparams, geoasciiparams, modelpixelscale, modeltiepoint, modeltransformation)
+  Metadata(; geokeydirectory, geodoubleparams, geoasciiparams, modeltiepoint, modelpixelscale, modeltransformation)
 end
