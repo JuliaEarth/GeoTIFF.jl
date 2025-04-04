@@ -239,7 +239,6 @@ function Metadata(;
   modelpixelscale=nothing,
   modeltransformation=nothing
 )
-
   if !isnothing(modelpixelscale) && !isnothing(modeltransformation)
     throw(ArgumentError("only one of ModelPixelScale with ModelTiepoint or ModelTransformation can be defined"))
   end
