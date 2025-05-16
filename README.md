@@ -5,6 +5,9 @@
 
 Load and save GeoTIFF files in native Julia.
 
+Please check [GeoIO.jl](https://github.com/JuliaEarth/GeoIO.jl)
+if you just need to load and save "raster" data.
+
 ## Installation
 
 Get the latest stable release with Julia's package manager:
