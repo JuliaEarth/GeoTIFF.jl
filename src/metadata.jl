@@ -48,7 +48,26 @@ GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[]) =
 function GeoKeyDirectory(params::Vector{UInt16})
   nkeys = params[4]
   geokeys = map((1:nkeys) * 4) do i
-    id = GeoKeyID(params[1 + i])
+    rawid = params[1 + i]
+    id = try
+      GeoKeyID(rawid)
+    catch e
+      if e isa ArgumentError && rawid == 2062
+        throw(
+          ArgumentError(
+            "\n" *
+            "Invalid GeoKeyID: 2062 (GeogTOWGS84GeoKey)\n" *
+            "\n" *
+            "  • Reason: This key is common in Agisoft/Pix4D outputs but is not part of the OGC GeoTIFF standard (v1.1).\n" *
+            "  • Action: Please re-export the data using a valid OGC GeoTIFF Standard projection.\n" *
+            "  • Reference: See http://geotiff.maptools.org/spec/geotiff2.7.html for the list of supported keys.\n"
+          )
+        )
+      else
+        rethrow(e)
+      end
+    end
+
     tag = params[2 + i]
     count = params[3 + i]
     value = params[4 + i]
