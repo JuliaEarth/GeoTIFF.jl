@@ -439,7 +439,9 @@ savedir = mktempdir()
   end
 
   @testset "exceptions" begin
-    file = joinpath(datadir, "GeogToWGS84GeoKey5.tif")
-    @test_throws "GeogTOWGS84GeoKey / ID 2062" GeoTIFF.load(file)
+    file = joinpath(datadir, "geogtowgs84.tif")
+    @test_throws "Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected." GeoTIFF.load(
+      file
+    )
   end
 end

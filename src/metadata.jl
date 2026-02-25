@@ -55,12 +55,14 @@ function GeoKeyDirectory(params::Vector{UInt16})
       if e isa ArgumentError && rawid == 2062
         throw(
           ArgumentError(
-            "Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected.\n" *
-            "This file contains non-standard coordinate reference metadata that falls outside the official OGC GeoTIFF specification (v1.1).\n" *
-            "To read this file, please re-export your image using a standard coordinate reference system (CRS) without TOWGS84 parameters.\n\n" *
-            "References:\n" *
-            "• OGC Standard: https://docs.ogc.org/is/19-008r4/19-008r4.html\n" *
-            "• TOWGS84: https://trac.osgeo.org/geotiff/wiki/TOWGS84GeoKey\n"
+            """Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected.
+            This file contains non-standard coordinate reference metadata that falls outside the official OGC GeoTIFF specification (v1.1).
+            To read this file, please re-export your image using a standard coordinate reference system (CRS) without TOWGS84 parameters.
+
+            References:
+            • OGC Standard: https://docs.ogc.org/is/19-008r4/19-008r4.html
+            • TOWGS84: https://trac.osgeo.org/geotiff/wiki/TOWGS84GeoKey
+            """
           )
         )
       else
