@@ -437,4 +437,9 @@ savedir = mktempdir()
     @test GeoTIFF.geokeydouble(metadata, GeoTIFF.ProjNatOriginLatGeoKey) == 15.0
     @test GeoTIFF.geokeydouble(metadata, GeoTIFF.ProjNatOriginLongGeoKey) == 25.0
   end
+
+  @testset "exceptions" begin
+    file = joinpath(datadir, "GeogToWGS84GeoKey5.tif")
+    @test_throws "GeogTOWGS84GeoKey / ID 2062" GeoTIFF.load(file)
+  end
 end

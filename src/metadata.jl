@@ -55,12 +55,12 @@ function GeoKeyDirectory(params::Vector{UInt16})
       if e isa ArgumentError && rawid == 2062
         throw(
           ArgumentError(
-            "\n" *
-            "Invalid GeoKeyID: 2062 (GeogTOWGS84GeoKey)\n" *
-            "\n" *
-            "  • Reason: This key is common in Agisoft/Pix4D outputs but is not part of the OGC GeoTIFF standard (v1.1).\n" *
-            "  • Action: Please re-export the data using a valid OGC GeoTIFF Standard projection.\n" *
-            "  • Reference: See http://geotiff.maptools.org/spec/geotiff2.7.html for the list of supported keys.\n"
+            "Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected.\n" *
+            "This file contains non-standard coordinate reference metadata that falls outside the official OGC GeoTIFF specification (v1.1).\n" *
+            "To read this file, please re-export your image using a standard coordinate reference system (CRS) without TOWGS84 parameters.\n" *
+            "References:\n" *
+            "- OGC Standard: https://docs.ogc.org/is/19-008r4/19-008r4.html\n" *
+            "- TOWGS84: https://trac.osgeo.org/geotiff/wiki/TOWGS84GeoKey\n"
           )
         )
       else
