@@ -437,4 +437,11 @@ savedir = mktempdir()
     @test GeoTIFF.geokeydouble(metadata, GeoTIFF.ProjNatOriginLatGeoKey) == 15.0
     @test GeoTIFF.geokeydouble(metadata, GeoTIFF.ProjNatOriginLongGeoKey) == 25.0
   end
+
+  @testset "exceptions" begin
+    file = joinpath(datadir, "geogtowgs84.tif")
+    @test_throws "Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected." GeoTIFF.load(
+      file
+    )
+  end
 end

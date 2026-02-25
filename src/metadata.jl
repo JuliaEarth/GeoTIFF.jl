@@ -48,7 +48,29 @@ GeoKeyDirectory(; version=1, revision=1, minor=1, geokeys=GeoKey[]) =
 function GeoKeyDirectory(params::Vector{UInt16})
   nkeys = params[4]
   geokeys = map((1:nkeys) * 4) do i
-    id = GeoKeyID(params[1 + i])
+    rawid = params[1 + i]
+    id = try
+      GeoKeyID(rawid)
+    catch e
+      if e isa ArgumentError && rawid == 2062
+        throw(
+          ArgumentError(
+            """Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected.
+
+            This file contains coordinate reference system metadata that falls outside the official OGC GeoTIFF specification (v1.1).
+            To read this file, please use external tools to convert from TOWGS84 parameters to standard coordinate reference systems.
+
+            References:
+            • OGC Standard: https://docs.ogc.org/is/19-008r4/19-008r4.html
+            • TOWGS84: https://trac.osgeo.org/geotiff/wiki/TOWGS84GeoKey
+            """
+          )
+        )
+      else
+        rethrow(e)
+      end
+    end
+
     tag = params[2 + i]
     count = params[3 + i]
     value = params[4 + i]
