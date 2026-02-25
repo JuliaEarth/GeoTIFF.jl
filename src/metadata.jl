@@ -56,8 +56,9 @@ function GeoKeyDirectory(params::Vector{UInt16})
         throw(
           ArgumentError(
             """Cannot load image: Unsupported datum transformation parameters (GeogTOWGS84GeoKey / ID 2062) detected.
-            This file contains non-standard coordinate reference metadata that falls outside the official OGC GeoTIFF specification (v1.1).
-            To read this file, please re-export your image using a standard coordinate reference system (CRS) without TOWGS84 parameters.
+
+            This file contains coordinate reference system metadata that falls outside the official OGC GeoTIFF specification (v1.1).
+            To read this file, please use external tools to convert from TOWGS84 parameters to standard coordinate reference systems.
 
             References:
             • OGC Standard: https://docs.ogc.org/is/19-008r4/19-008r4.html
